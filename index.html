@@ -187,7 +187,7 @@
     const num=parseInt(hex,16); const n=isNaN(num)?0x888888:num;
     return [(n>>16)&255,(n>>8)&255,n&255];
   }
-  // Never let a chosen color land on (near) black — nudge it back to a fallback color instead.
+  // never let a chosen color land on (near) black — nudge it back to a fallback color instead
   function ensureNotBlack(hex, fallback){
     const [r,g,b]=hexToRgbArr(hex);
     const lum=0.2126*r+0.7152*g+0.0722*b;
@@ -231,7 +231,7 @@
     ctx.setTransform(DPR,0,0,DPR,0,0);
     ctx.lineJoin='round'; ctx.lineCap='round';
 
-    // ---- bouncy lattice (unchanged behaviour) ----
+    // ---- bouncy lattice  ----
     const cell=Math.max(120,Math.min(190,Math.round(Math.sqrt(W*H)/7)));
     const cols=Math.ceil(W/cell)+2, rows=Math.ceil(H/cell)+2;
     nodes=[]; edges=[];
