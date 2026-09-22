@@ -1,0 +1,1901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+<title>imperfection.</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:100%;height:100%;overflow:hidden;background:#f6f3e9}
+  body{cursor:crosshair;touch-action:none}
+  /* wavy zebra-stripe paper background using CSS mask for instant color updates */
+  .zebra{
+    position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-color:#f6f3e9;
+  }
+  .zebra::after{
+    content:'';position:absolute;inset:0;
+    background-color:var(--zebra-col,#2b2a55);
+    opacity:0.16;
+    -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='60' viewBox='0 0 80 60'%3E%3Cpath d='M0 30 C13 20 27 20 40 30 S67 40 80 30' fill='none' stroke='black' stroke-width='10' stroke-linecap='round'/%3E%3C/svg%3E");
+    mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='60' viewBox='0 0 80 60'%3E%3Cpath d='M0 30 C13 20 27 20 40 30 S67 40 80 30' fill='none' stroke='black' stroke-width='10' stroke-linecap='round'/%3E%3C/svg%3E");
+    -webkit-mask-repeat:repeat;mask-repeat:repeat;
+    -webkit-mask-size:168px 126px;mask-size:168px 126px;
+  }
+  #web{position:fixed;inset:0;width:100%;height:100%;z-index:1;display:block}
+
+  /* ---------- settings UI ---------- */
+  #uiRoot{
+    position:fixed;
+    top:calc(18px + env(safe-area-inset-top,0px));
+    right:calc(18px + env(safe-area-inset-right,0px));
+    z-index:30;display:flex;gap:10px;
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  #gearBtn,#infoBtn,#audioBtn{
+    width:46px;height:46px;border-radius:50%;border:none;
+    background:linear-gradient(135deg,#ff7ab2,#7a8cff);
+    color:#fff;font-size:19px;cursor:pointer;
+    box-shadow:0 6px 18px rgba(43,42,85,0.35);
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+    user-select:none;
+    -webkit-user-select:none;
+  }
+  #gearBtn:hover,#infoBtn:hover,#audioBtn:hover{filter:brightness(1.08)}
+  #settingsPanel{
+    position:absolute;top:56px;right:0;width:232px;
+    max-height:calc(100vh - 80px);overflow-y:auto;
+    --panel-bg:rgba(255,255,255,0.94);
+    --panel-text:#2b2a55;
+    --field-bg:#f3eefb;
+    --swatch-ring:rgba(43,42,85,0.16);
+    --swatch-ring-hover:rgba(43,42,85,0.32);
+    background:var(--panel-bg);
+    backdrop-filter:blur(10px);
+    border-radius:18px;
+    clip-path:inset(0 round 18px);
+    padding:14px 14px 16px;
+    box-shadow:0 12px 32px rgba(43,42,85,0.28);
+    color:var(--panel-text);
+    transform:scale(0.92) translateY(-6px);
+    opacity:0;pointer-events:none;
+    transition:transform .16s ease,opacity .16s ease,background-color .25s ease,color .25s ease;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(150, 150, 180, 0.4) transparent;
+  }
+  #settingsPanel::-webkit-scrollbar {
+    width: 8px;
+  }
+  #settingsPanel::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 10px 0;
+  }
+  #settingsPanel::-webkit-scrollbar-thumb {
+    background-color: rgba(150, 150, 180, 0.4);
+    border-radius: 99px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  #settingsPanel.dark{
+    --panel-bg:rgba(24,21,38,0.94);
+    --panel-text:#efe6fb;
+    --field-bg:#332c52;
+    --swatch-ring:rgba(255,255,255,0.2);
+    --swatch-ring-hover:rgba(255,255,255,0.38);
+  }
+  #settingsPanel.dark::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.3);
+  }
+  .sectionLabel{font-size:12px;font-weight:600;margin:2px 0 6px;opacity:.85}
+  .randomRow{display:flex;gap:6px;margin-bottom:12px}
+  .randBtn{
+    flex:1;border:none;border-radius:10px;padding:8px 4px;
+    font-size:11px;font-weight:600;cursor:pointer;line-height:1.3;
+    background:linear-gradient(135deg,#ff7ab2,#7a8cff);color:#fff;
+  }
+  .randBtn:hover{filter:brightness(1.08)}
+  #settingsPanel.open{transform:scale(1) translateY(0);opacity:1;pointer-events:auto}
+  .panelHead{
+    display:flex;align-items:center;justify-content:space-between;
+    font-weight:700;font-size:14px;margin-bottom:10px;
+  }
+  #closeBtn{
+    border:none;background:transparent;color:inherit;
+    font-size:15px;cursor:pointer;line-height:1;padding:4px;opacity:.8;
+  }
+  #closeBtn:hover{opacity:1}
+  .presetRow{display:flex;gap:6px;margin-bottom:12px}
+  .presetBtn{
+    flex:1;border:none;border-radius:10px;padding:7px 4px;
+    font-size:11px;font-weight:600;cursor:pointer;
+    background:#eee6fb;color:#2b2a55;
+  }
+  .presetBtn:hover{background:#e0d3fb}
+  .fieldRow{
+    display:flex;align-items:center;justify-content:space-between;
+    font-size:13px;font-weight:500;margin-bottom:8px;
+    padding:8px 10px;border-radius:12px;
+    background:var(--field-bg);
+    transition:background-color .25s ease;
+  }
+
+  /* Custom Swatch Button Trigger */
+  .swatchBtn{
+    display:block;flex-shrink:0;
+    width:32px;height:32px;border-radius:9px;border:none;
+    box-shadow:0 0 0 1.5px var(--swatch-ring);
+    cursor:pointer;
+    transition:box-shadow .15s ease,transform .15s ease;
+  }
+  .swatchBtn:hover{transform:translateY(-1px);box-shadow:0 0 0 2px var(--swatch-ring-hover)}
+
+  .paletteLabel{font-size:12px;font-weight:600;margin:10px 0 6px}
+  .paletteRow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .paletteRow .swatchBtn{width:100%;height:auto;aspect-ratio:1/1;border-radius:9px}
+  .hint{font-size:11px;opacity:.65;margin-top:10px;line-height:1.4}
+  .styleRow{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+  .styleBtn{
+    flex:1;min-width:64px;border:none;border-radius:10px;padding:8px 4px;
+    font-size:11px;font-weight:600;cursor:pointer;
+    background:#eee6fb;color:#2b2a55;
+    transition:background-color .15s ease;
+  }
+  .styleBtn:hover{background:#e0d3fb}
+  .styleBtn.active{background:linear-gradient(135deg,#ff7ab2,#7a8cff);color:#fff}
+  #settingsPanel.dark .styleBtn{background:#332c52;color:#efe6fb}
+  #settingsPanel.dark .styleBtn:hover{background:#3d3564}
+  #settingsPanel.dark .styleBtn.active{background:linear-gradient(135deg,#ff7ab2,#7a8cff);color:#fff}
+
+  /* ---------- welcome overlay ---------- */
+  #welcomeOverlay{
+    position:fixed;inset:0;z-index:60;
+    background:rgba(20,18,36,0.55);
+    backdrop-filter:blur(6px);
+    display:flex;align-items:center;justify-content:center;
+    padding:20px;
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  #welcomeOverlay.hidden{display:none}
+  #welcomeCard{
+    width:min(440px,92vw);
+    max-height:min(640px,86vh);
+    overflow-y:auto;
+    background:rgba(255,255,255,0.97);
+    color:#2b2a55;
+    border-radius:22px;
+    clip-path:inset(0 round 22px);
+    padding:26px 18px 22px 24px;
+    box-shadow:0 24px 60px rgba(20,18,36,0.4);
+    scrollbar-width:thin;
+    scrollbar-color:rgba(150, 150, 180, 0.4) transparent;
+    transition:background-color .25s ease, color .25s ease;
+  }
+  #welcomeCard::-webkit-scrollbar {
+    width:10px;
+  }
+  #welcomeCard::-webkit-scrollbar-track {
+    background:transparent;
+    margin:12px 0;
+  }
+  #welcomeCard::-webkit-scrollbar-thumb {
+    background-color:rgba(150, 150, 180, 0.4);
+    border-radius:99px;
+    border:3px solid transparent;
+    background-clip:padding-box;
+  }
+  #welcomeCard::-webkit-scrollbar-thumb:hover {
+    background-color:rgba(150, 150, 180, 0.7);
+    border:2px solid transparent;
+    background-clip:padding-box;
+  }
+
+  /* Dark mode adaptive styling for welcome card */
+  #welcomeCard.dark {
+    background:rgba(24,21,38,0.96);
+    color:#efe6fb;
+    scrollbar-color:rgba(255, 255, 255, 0.3) transparent;
+  }
+  #welcomeCard.dark::-webkit-scrollbar-thumb {
+    background-color:rgba(255, 255, 255, 0.3);
+    border:3px solid transparent;
+    background-clip:padding-box;
+  }
+  #welcomeCard.dark::-webkit-scrollbar-thumb:hover {
+    background-color:rgba(255, 255, 255, 0.55);
+    border:2px solid transparent;
+    background-clip:padding-box;
+  }
+
+  #welcomeCard h2{
+    font-size:22px;margin-bottom:8px;font-weight:800;
+    background:linear-gradient(135deg,#ff2e9a,#7a8cff);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  #welcomeCard h3{font-size:13px;font-weight:600;margin:16px 0 6px;opacity:.95}
+  #welcomeCard p,#welcomeCard li{font-size:13.5px;line-height:1.55;opacity:.9}
+  #welcomeCard ul{padding-left:18px;margin-bottom:4px}
+  #welcomeCard li{margin-bottom:5px}
+  #welcomeCard li b,#welcomeCard li strong{opacity:1}
+  .welcomeFoot{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    margin-top:18px;flex-wrap:wrap;
+  }
+  #welcomeCloseBtn{
+    border:none;border-radius:12px;padding:11px 22px;
+    font-size:13.5px;font-weight:700;color:#fff;cursor:pointer;
+    background:linear-gradient(135deg,#ff7ab2,#7a8cff);
+    box-shadow:0 8px 20px rgba(43,42,85,0.3);
+    flex-shrink:0;
+  }
+  #welcomeCloseBtn:hover{filter:brightness(1.06)}
+  .dontShowRow{
+    display:flex;align-items:center;gap:7px;
+    font-size:12px;opacity:.75;cursor:pointer;
+  }
+  .dontShowRow input{width:15px;height:15px;flex-shrink:0;cursor:pointer}
+
+  /* ---------- custom in-app color picker window ---------- */
+  #colorPickerOverlay{
+    position:fixed;inset:0;z-index:70;
+    background:rgba(20,18,36,0.55);
+    backdrop-filter:blur(8px);
+    display:flex;align-items:center;justify-content:center;
+    padding:16px;
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    transition:opacity 0.2s ease;
+  }
+  #colorPickerOverlay.hidden{display:none}
+  #colorPickerCard{
+    width:min(340px,92vw);
+    background:rgba(255,255,255,0.97);
+    color:#2b2a55;
+    border-radius:22px;
+    clip-path:inset(0 round 22px);
+    padding:18px 20px 20px;
+    box-shadow:0 24px 60px rgba(20,18,36,0.4);
+    display:flex;flex-direction:column;gap:14px;
+    transition:background-color .25s ease, color .25s ease;
+  }
+  #colorPickerCard.dark{
+    background:rgba(24,21,38,0.96);
+    color:#efe6fb;
+  }
+  .cpHead{
+    display:flex;align-items:center;justify-content:space-between;
+    font-weight:700;font-size:15px;
+  }
+  .cpCloseBtn{
+    border:none;background:transparent;color:inherit;
+    font-size:16px;cursor:pointer;line-height:1;padding:4px;opacity:.8;
+  }
+  .cpCloseBtn:hover{opacity:1}
+
+  /* 2D Saturation / Value Box */
+  .cpSatValBox{
+    position:relative;width:100%;height:150px;
+    border-radius:14px;overflow:hidden;cursor:crosshair;
+    touch-action:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,0.12);
+  }
+  .cpSatValBg{position:absolute;inset:0}
+  .cpSatValWhite{position:absolute;inset:0;background:linear-gradient(to right,#fff,rgba(255,255,255,0))}
+  .cpSatValBlack{position:absolute;inset:0;background:linear-gradient(to top,#000,rgba(0,0,0,0))}
+  .cpCrosshair{
+    position:absolute;width:18px;height:18px;
+    border:2px solid #fff;border-radius:50%;
+    transform:translate(-50%,-50%);pointer-events:none;
+    box-shadow:0 0 0 1px rgba(0,0,0,0.4),0 2px 6px rgba(0,0,0,0.3);
+  }
+
+  /* Hue Slider */
+  .cpHueBox{
+    position:relative;width:100%;height:20px;border-radius:10px;
+    background:linear-gradient(to right,#f00 0%,#ff0 17%,#0f0 33%,#0ff 50%,#00f 67%,#f0f 83%,#f00 100%);
+    cursor:pointer;touch-action:none;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,0.12);
+  }
+  .cpHueHandle{
+    position:absolute;top:50%;width:14px;height:24px;
+    background:#fff;border-radius:6px;
+    transform:translate(-50%,-50%);pointer-events:none;
+    box-shadow:0 2px 6px rgba(0,0,0,0.4);
+    border:1px solid rgba(0,0,0,0.2);
+  }
+
+  /* Preview & Hex Row */
+  .cpInputRow{display:flex;align-items:center;gap:10px}
+  .cpPreviewSwatch{
+    width:40px;height:40px;border-radius:12px;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,0.15),0 3px 10px rgba(0,0,0,0.1);
+    flex-shrink:0;
+  }
+  .cpHexGroup{display:flex;flex-direction:column;gap:3px;flex:1}
+  .cpHexLabel{font-size:11px;font-weight:600;opacity:.7}
+  .cpHexInput{
+    width:100%;border:none;border-radius:10px;
+    padding:8px 10px;font-size:13px;font-weight:700;
+    font-family:monospace,sans-serif;
+    background:#f3eefb;color:inherit;outline:none;
+    text-transform:uppercase;
+  }
+  #colorPickerCard.dark .cpHexInput{background:#332c52}
+
+  /* Quick Swatches */
+  .cpQuickRow{display:flex;gap:6px;justify-content:space-between;margin-top:2px}
+  .cpQuickSwatch{
+    width:28px;height:28px;border-radius:8px;border:none;
+    cursor:pointer;box-shadow:0 0 0 1px rgba(0,0,0,0.12);
+    transition:transform .12s ease;
+  }
+  .cpQuickSwatch:hover{transform:scale(1.15)}
+
+  /* Actions */
+  .cpActions{display:flex;gap:8px;margin-top:4px}
+  .cpBtn{
+    flex:1;border:none;border-radius:12px;padding:10px;
+    font-size:13px;font-weight:700;cursor:pointer;text-align:center;
+  }
+  .cpBtnCancel{background:#f3eefb;color:inherit}
+  #colorPickerCard.dark .cpBtnCancel{background:#332c52}
+  .cpBtnApply{
+    background:linear-gradient(135deg,#ff7ab2,#7a8cff);
+    color:#fff;box-shadow:0 4px 14px rgba(43,42,85,0.25);
+  }
+  .cpBtnApply:hover,.cpBtnCancel:hover{filter:brightness(1.06)}
+
+  /* ---------- mobile adaptation ---------- */
+  @media (max-width:600px){
+    #uiRoot{
+      top:calc(12px + env(safe-area-inset-top,0px));
+      right:calc(12px + env(safe-area-inset-right,0px));
+      gap:8px;
+    }
+    #gearBtn,#infoBtn,#audioBtn{width:48px;height:48px;font-size:20px}
+    #settingsPanel{
+      width:min(268px,calc(100vw - 24px));
+      max-height:calc(100vh - 84px - env(safe-area-inset-top,0px));
+      top:58px;
+    }
+    .fieldRow{font-size:14px;padding:10px 12px}
+    .presetBtn,.randBtn,.styleBtn{font-size:12px;padding:10px 5px}
+    .swatchBtn{width:34px;height:34px}
+    #welcomeCard{padding:22px 14px 18px 18px}
+    #welcomeCard h2{font-size:19px}
+    #welcomeCard p,#welcomeCard li{font-size:13px}
+    .welcomeFoot{flex-direction:column;align-items:stretch}
+    #welcomeCloseBtn{width:100%;padding:13px 22px}
+    .dontShowRow{order:2;justify-content:center}
+    #colorPickerCard{padding:16px 16px 18px;gap:12px}
+    .cpSatValBox{height:135px}
+  }
+  @media (max-width:360px){
+    #settingsPanel{width:calc(100vw - 20px);right:-4px}
+  }
+</style>
+</head>
+<body>
+  <div class="zebra"></div>
+  <canvas id="web"></canvas>
+
+  <div id="uiRoot">
+    <button id="audioBtn" aria-label="Toggle sound" title="Sound On/Off">🔊</button>
+    <button id="infoBtn" aria-label="How this works" title="How this works">?</button>
+    <button id="gearBtn" aria-label="Open settings" title="Settings">⚙️</button>
+    <div id="settingsPanel" aria-hidden="true">
+      <div class="panelHead">
+        <span>Settings</span>
+        <button id="closeBtn" aria-label="Close settings">✕</button>
+      </div>
+
+      <div class="sectionLabel">Presets</div>
+      <div class="presetRow">
+        <button class="presetBtn" data-preset="colorful">Colorful</button>
+        <button class="presetBtn" data-preset="pastel">Pastel</button>
+        <button class="presetBtn" data-preset="dark">Dark-ish</button>
+      </div>
+
+      <div class="sectionLabel">Shape style</div>
+      <div class="styleRow" id="styleRow">
+        <button class="styleBtn" data-style="geometric">Geometric</button>
+        <button class="styleBtn" data-style="floral">Floral</button>
+        <button class="styleBtn" data-style="sky">Sky</button>
+      </div>
+
+      <div class="sectionLabel">Randomize</div>
+      <div class="randomRow">
+        <button id="randAllBtn" class="randBtn" title="Randomize background, pattern, outline and shape colors">🎲 Randomize all</button>
+        <button id="randShapesBtn" class="randBtn" title="Randomize only the shape colors">🔷 Shapes only</button>
+      </div>
+
+      <label class="fieldRow">Background <button type="button" class="swatchBtn" id="bgSwatch" aria-label="Choose background color"></button></label>
+      <label class="fieldRow">Pattern <button type="button" class="swatchBtn" id="zebraSwatch" aria-label="Choose pattern color"></button></label>
+      <label class="fieldRow">Outline <button type="button" class="swatchBtn" id="outlineSwatch" aria-label="Choose outline color"></button></label>
+
+      <div class="paletteLabel">Shape colors</div>
+      <div id="paletteRow" class="paletteRow"></div>
+
+      <div class="hint">Pick a preset or set your own colors. Pure black is never used — it'll be nudged into a nearby shade.</div>
+    </div>
+  </div>
+
+  <!-- Custom In-App Color Picker Window -->
+  <div id="colorPickerOverlay" class="hidden" role="dialog" aria-modal="true" aria-labelledby="cpTitle">
+    <div id="colorPickerCard">
+      <div class="cpHead">
+        <span id="cpTitle">Color Picker</span>
+        <button class="cpCloseBtn" id="cpCloseBtn" aria-label="Close color picker">✕</button>
+      </div>
+
+      <!-- 2D Saturation / Value Box -->
+      <div class="cpSatValBox" id="cpSatValBox">
+        <div class="cpSatValBg" id="cpSatValBg"></div>
+        <div class="cpSatValWhite"></div>
+        <div class="cpSatValBlack"></div>
+        <div class="cpCrosshair" id="cpCrosshair"></div>
+      </div>
+
+      <!-- Hue Bar -->
+      <div class="cpHueBox" id="cpHueBox">
+        <div class="cpHueHandle" id="cpHueHandle"></div>
+      </div>
+
+      <!-- Quick Preset Swatches -->
+      <div class="cpQuickRow" id="cpQuickRow">
+        <button class="cpQuickSwatch" style="background:#ff2e9a" data-hex="#ff2e9a"></button>
+        <button class="cpQuickSwatch" style="background:#ff3b3b" data-hex="#ff3b3b"></button>
+        <button class="cpQuickSwatch" style="background:#ff7a1a" data-hex="#ff7a1a"></button>
+        <button class="cpQuickSwatch" style="background:#ffe14d" data-hex="#ffe14d"></button>
+        <button class="cpQuickSwatch" style="background:#2ee6ff" data-hex="#2ee6ff"></button>
+        <button class="cpQuickSwatch" style="background:#4d7cff" data-hex="#4d7cff"></button>
+        <button class="cpQuickSwatch" style="background:#b44dff" data-hex="#b44dff"></button>
+        <button class="cpQuickSwatch" style="background:#ffffff" data-hex="#ffffff"></button>
+      </div>
+
+      <!-- Preview & Input -->
+      <div class="cpInputRow">
+        <div class="cpPreviewSwatch" id="cpPreviewSwatch"></div>
+        <div class="cpHexGroup">
+          <span class="cpHexLabel">HEX CODE</span>
+          <input type="text" class="cpHexInput" id="cpHexInput" maxlength="7" spellcheck="false">
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="cpActions">
+        <button class="cpBtn cpBtnCancel" id="cpCancelBtn">Cancel</button>
+        <button class="cpBtn cpBtnApply" id="cpApplyBtn">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="welcomeOverlay" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
+    <div id="welcomeCard">
+      <h2 id="welcomeTitle">welcome to imperfection.</h2>
+      <p>This little corner of the screen isn't for anything in particular — no goals, no scores, nothing to get "right." It's just a soft, colorful world of shapes that react to you, built for letting off steam, relaxing for a minute, or just having a bit of fun with color and motion.</p>
+
+      <h3>How it works</h3>
+      <ul>
+        <li>Move your <strong>cursor or finger</strong> around and watch the lattice ripple beneath the shapes.</li>
+        <li><strong>Tap or click a shape</strong> to set it off — triggering dynamic audio feedback that matches your chosen shape style while shapes pop, fling, rainbow, grow, spin, or split.</li>
+        <li><strong>Tap empty space</strong> to send a shockwave rippling through everything at once with an atmospheric bass pulse.</li>
+      </ul>
+
+      <h3>The settings (⚙️ top right)</h3>
+      <ul>
+        <li><strong>Sound toggle (🔊)</strong> — mute or unmute audio feedback anytime.</li>
+        <li><strong>Presets</strong> — swap the whole mood in one tap: Colorful, Pastel, or Dark-ish.</li>
+        <li><strong>Shape style</strong> — switch shapes & audio between bouncy <i>Geometric</i> (funky synth boops), soft <i>Floral</i> (grounded wooden marimba & chimes), or dreamy <i>Sky</i> (ethereal shimmers & cosmic sweeps).</li>
+        <li><strong>Randomize</strong> — "Randomize all" reshuffles everything; "Shapes only" keeps your background as is and just remixes the shapes.</li>
+        <li><strong>Background / Pattern / Outline</strong> — pick your own colors by hand for the canvas, the wavy pattern, and the shape outlines.</li>
+        <li><strong>Shape colors</strong> — the palette your floating shapes are drawn from.</li>
+      </ul>
+      <p>Set it up however feels good, then just let your hands wander.</p>
+
+      <div class="welcomeFoot">
+        <label class="dontShowRow"><input type="checkbox" id="dontShowAgain"> Don't show this again</label>
+        <button id="welcomeCloseBtn">Let's go</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const canvas=document.getElementById('web');
+  const ctx=canvas.getContext('2d');
+  let W,H,DPR,t=0;
+  const mouse={x:-9999,y:-9999,active:false};
+
+  // ---------- THEME (no black, ever) ----------
+  const PRESETS={
+    colorful:{
+      bg:'#f6f3e9',
+      zebra:'#2b2a55',
+      outline:'#2b2a55',
+      palette:['#ff2e9a','#ff3b3b','#ff7a1a','#ffe14d','#a6ff3d','#2ee6ff','#4d7cff','#b44dff']
+    },
+    pastel:{
+      bg:'#faf3f9',
+      zebra:'#cdb8e6',
+      outline:'#8a7a9c',
+      palette:['#ffb3c6','#ffd6a5','#fdffb6','#caffbf','#9bf6ff','#a0c4ff','#bdb2ff','#ffc6ff']
+    },
+    dark:{
+      bg:'#221f36',
+      zebra:'#4a3f6c',
+      outline:'#efe6fb',
+      palette:['#ff6b9d','#ff9166','#ffd166','#8ac926','#33c1a8','#5e9dff','#9b6bff','#e26bff']
+    }
+  };
+  const THEME={
+    bg:PRESETS.colorful.bg,
+    zebra:PRESETS.colorful.zebra,
+    outline:PRESETS.colorful.outline,
+    palette:PRESETS.colorful.palette.slice()
+  };
+
+  function hexToRgbArr(hex){
+    hex=(hex||'#888888').replace('#','');
+    if(hex.length===3) hex=hex.split('').map(ch=>ch+ch).join('');
+    const num=parseInt(hex,16); const n=isNaN(num)?0x888888:num;
+    return [(n>>16)&255,(n>>8)&255,n&255];
+  }
+  function ensureNotBlack(hex, fallback){
+    const [r,g,b]=hexToRgbArr(hex);
+    const lum=0.2126*r+0.7152*g+0.0722*b;
+    return lum<30 ? (fallback||'#8a5fd6') : hex;
+  }
+  function rgbToHex(arr){
+    return '#'+arr.map(v=>{
+      const n=Math.round(Math.max(0,Math.min(255,v)));
+      return n.toString(16).padStart(2,'0');
+    }).join('');
+  }
+
+  /* HSV Conversion Utils */
+  function rgbToHsv(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    const d = max - min;
+    let h = 0;
+    const s = max === 0 ? 0 : d / max;
+    const v = max;
+    if (max !== min) {
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h /= 6;
+    }
+    return [h * 360, s * 100, v * 100];
+  }
+
+  function hsvToRgb(h, s, v) {
+    s /= 100; v /= 100;
+    const c = v * s;
+    const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+    const m = v - c;
+    let r = 0, g = 0, b = 0;
+    if (h < 60) { r = c; g = x; b = 0; }
+    else if (h < 120) { r = x; g = c; b = 0; }
+    else if (h < 180) { r = 0; g = c; b = x; }
+    else if (h < 240) { r = 0; g = x; b = c; }
+    else if (h < 300) { r = x; g = 0; b = c; }
+    else { r = c; g = 0; b = x; }
+    return [
+      Math.round((r + m) * 255),
+      Math.round((g + m) * 255),
+      Math.round((b + m) * 255)
+    ];
+  }
+
+  function applyBackground(){
+    document.documentElement.style.background=THEME.bg;
+    document.body.style.background=THEME.bg;
+    const zebraEl=document.querySelector('.zebra');
+    if(zebraEl){
+      zebraEl.style.backgroundColor=THEME.bg;
+      zebraEl.style.setProperty('--zebra-col', THEME.zebra);
+    }
+    if(typeof updatePanelTheme==='function') updatePanelTheme();
+  }
+
+  const rnd=(a,b)=>a+Math.random()*(b-a);
+  const pick=arr=>arr[(Math.random()*arr.length)|0];
+  const rgb=c=>`rgb(${c[0]|0},${c[1]|0},${c[2]|0})`;
+
+  const SHAPE_STYLES={
+    geometric:['circle','triangle','square','star','pentagon','hexagon','diamond','plus'],
+    floral:['flower','blossom','petal','leaf','bud','clover'],
+    sky:['cloud','starTwinkle','moon','lightning']
+  };
+  let shapeStyle='geometric';
+  const currentKinds=()=>SHAPE_STYLES[shapeStyle];
+  const HOVER_STYLES=['bounce','shake','jiggle','spin','pulse','wobble','orbit'];
+  const CLICK_STYLES=['pop','fling','rainbow','grow','spinout','split'];
+
+  // ---------- WEB AUDIO API PROCEDURAL SOUND SYNTHESIS ENGINE ----------
+  let audioCtx = null;
+  let soundMuted = false;
+  let masterGain = null;
+  let noiseBuffer = null;
+
+  function initAudio() {
+    if (!audioCtx) {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (AudioContextClass) {
+        audioCtx = new AudioContextClass();
+        masterGain = audioCtx.createGain();
+        masterGain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+        masterGain.connect(audioCtx.destination);
+      }
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  }
+
+  function getNoiseBuffer() {
+    if (!audioCtx) return null;
+    if (noiseBuffer) return noiseBuffer;
+    const bufferSize = audioCtx.sampleRate * 1;
+    noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = Math.random() * 2 - 1;
+    }
+    return noiseBuffer;
+  }
+
+  // --- GEOMETRIC SOUNDS (Funky / Boop / Beep / Bing / Bong) ---
+  function playFunkyPop(now, p) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'triangle';
+    const startFreq = 220 + p * 400;
+    osc.frequency.setValueAtTime(startFreq, now);
+    osc.frequency.exponentialRampToValueAtTime(startFreq * 2.2, now + 0.06);
+    osc.frequency.exponentialRampToValueAtTime(startFreq * 0.5, now + 0.12);
+
+    gain.gain.setValueAtTime(0.4, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+    osc.connect(gain); gain.connect(masterGain);
+    osc.start(now); osc.stop(now + 0.13);
+  }
+
+  function playFunkyBoing(now, p) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    const base = 250 + p * 300;
+    osc.frequency.setValueAtTime(base * 1.5, now);
+    osc.frequency.exponentialRampToValueAtTime(base * 0.6, now + 0.08);
+    osc.frequency.exponentialRampToValueAtTime(base * 2.4, now + 0.22);
+
+    gain.gain.setValueAtTime(0.35, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.23);
+
+    osc.connect(gain); gain.connect(masterGain);
+    osc.start(now); osc.stop(now + 0.24);
+  }
+
+  function playFunkyChirp(now, p) {
+    const notes = [440 + p * 300, 660 + p * 400];
+    notes.forEach((freq, idx) => {
+      const t = now + idx * 0.05;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const filter = audioCtx.createBiquadFilter();
+
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(freq, t);
+      filter.type = 'lowpass'; filter.frequency.setValueAtTime(2200, t);
+
+      gain.gain.setValueAtTime(0.18, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+
+      osc.connect(filter); filter.connect(gain); gain.connect(masterGain);
+      osc.start(t); osc.stop(t + 0.09);
+    });
+  }
+
+  function playFunkyGrow(now, p) {
+    const osc = audioCtx.createOscillator();
+    const filter = audioCtx.createBiquadFilter();
+    const gain = audioCtx.createGain();
+    
+    osc.type = 'sawtooth';
+    const freq = 80 + p * 120;
+    osc.frequency.setValueAtTime(freq, now);
+    osc.frequency.linearRampToValueAtTime(freq * 1.5, now + 0.25);
+
+    filter.type = 'lowpass'; filter.Q.setValueAtTime(5, now);
+    filter.frequency.setValueAtTime(150, now);
+    filter.frequency.exponentialRampToValueAtTime(1800, now + 0.15);
+    filter.frequency.exponentialRampToValueAtTime(200, now + 0.28);
+
+    gain.gain.setValueAtTime(0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.29);
+
+    osc.connect(filter); filter.connect(gain); gain.connect(masterGain);
+    osc.start(now); osc.stop(now + 0.3);
+  }
+
+  function playFunkyWobble(now, p) {
+    const carrier = audioCtx.createOscillator();
+    const modulator = audioCtx.createOscillator();
+    const modGain = audioCtx.createGain();
+    const gain = audioCtx.createGain();
+
+    const baseFreq = 300 + p * 400;
+    carrier.type = 'sine'; carrier.frequency.setValueAtTime(baseFreq, now);
+
+    modulator.type = 'sine'; modulator.frequency.setValueAtTime(18, now);
+    modGain.gain.setValueAtTime(120, now);
+
+    modulator.connect(carrier.frequency);
+    gain.gain.setValueAtTime(0.35, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+
+    carrier.connect(gain); gain.connect(masterGain);
+    modulator.start(now); carrier.start(now);
+    modulator.stop(now + 0.23); carrier.stop(now + 0.23);
+  }
+
+  function playFunkySplit(now, p) {
+    const freqs = [350 + p * 200, 520 + p * 300, 780 + p * 400];
+    freqs.forEach((f, i) => {
+      const t = now + i * 0.035;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(f, t);
+      osc.frequency.exponentialRampToValueAtTime(f * 1.8, t + 0.05);
+
+      gain.gain.setValueAtTime(0.25, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+
+      osc.connect(gain); gain.connect(masterGain);
+      osc.start(t); osc.stop(t + 0.08);
+    });
+  }
+
+  function playFunkyShockwave(now) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(180, now);
+    osc.frequency.exponentialRampToValueAtTime(35, now + 0.25);
+
+    gain.gain.setValueAtTime(0.5, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+
+    osc.connect(gain); gain.connect(masterGain);
+    osc.start(now); osc.stop(now + 0.29);
+  }
+
+  // --- FLORAL SOUNDS (Grounded & Ethereal / Kalimba / Glass Chimes) ---
+  function playFloralPop(now, p) {
+    const baseFreq = 220 + p * 330;
+    const osc1 = audioCtx.createOscillator();
+    const gain1 = audioCtx.createGain();
+    osc1.type = 'sine'; osc1.frequency.setValueAtTime(baseFreq, now);
+    gain1.gain.setValueAtTime(0.35, now);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    osc1.connect(gain1); gain1.connect(masterGain);
+    osc1.start(now); osc1.stop(now + 0.36);
+
+    const osc2 = audioCtx.createOscillator();
+    const gain2 = audioCtx.createGain();
+    osc2.type = 'sine'; osc2.frequency.setValueAtTime(baseFreq * 2.76, now);
+    gain2.gain.setValueAtTime(0.12, now);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+    osc2.connect(gain2); gain2.connect(masterGain);
+    osc2.start(now); osc2.stop(now + 0.13);
+  }
+
+  function playFloralSlide(now, p) {
+    const osc = audioCtx.createOscillator();
+    const lfo = audioCtx.createOscillator();
+    const lfoGain = audioCtx.createGain();
+    const gain = audioCtx.createGain();
+
+    const startF = 300 + p * 250;
+    osc.type = 'sine'; osc.frequency.setValueAtTime(startF, now);
+    osc.frequency.exponentialRampToValueAtTime(startF * 1.33, now + 0.35);
+
+    lfo.type = 'sine'; lfo.frequency.setValueAtTime(5, now);
+    lfoGain.gain.setValueAtTime(6, now);
+    lfo.connect(osc.frequency);
+
+    gain.gain.setValueAtTime(0.001, now);
+    gain.gain.linearRampToValueAtTime(0.3, now + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+    osc.connect(gain); gain.connect(masterGain);
+    lfo.start(now); osc.start(now);
+    lfo.stop(now + 0.42); osc.stop(now + 0.42);
+  }
+
+  function playFloralArpeggio(now, p) {
+    const baseRoot = 220 + Math.floor(p * 3) * 55;
+    const ratios = [1, 1.25, 1.5, 1.875, 2];
+    ratios.forEach((ratio, i) => {
+      const t = now + i * 0.04;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const filter = audioCtx.createBiquadFilter();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(baseRoot * ratio, t);
+      filter.type = 'lowpass'; filter.frequency.setValueAtTime(1200, t);
+
+      gain.gain.setValueAtTime(0.2, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+
+      osc.connect(filter); filter.connect(gain); gain.connect(masterGain);
+      osc.start(t); osc.stop(t + 0.42);
+    });
+  }
+
+  function playFloralGroundedSwell(now, p) {
+    const rootF = 110 + p * 110;
+    [1, 1.5, 2].forEach((ratio, i) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(rootF * ratio, now);
+
+      const vol = (i === 0 ? 0.35 : (i === 1 ? 0.15 : 0.08));
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(vol, now + 0.1);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+
+      osc.connect(gain); gain.connect(masterGain);
+      osc.start(now); osc.stop(now + 0.72);
+    });
+  }
+
+  function playFloralVibrato(now, p) {
+    const baseF = 196 + p * 300;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    const filter = audioCtx.createBiquadFilter();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(baseF, now);
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(800, now);
+    filter.frequency.exponentialRampToValueAtTime(200, now + 0.45);
+
+    gain.gain.setValueAtTime(0.35, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+    osc.connect(filter); filter.connect(gain); gain.connect(masterGain);
+    osc.start(now); osc.stop(now + 0.46);
+  }
+
+  function playFloralBloom(now, p) {
+    const notes = [261.63, 329.63, 392.00, 523.25];
+    notes.forEach((freq, i) => {
+      const t = now + i * 0.05;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq * (1 + p * 0.5), t);
+
+      gain.gain.setValueAtTime(0.22, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+
+      osc.connect(gain); gain.connect(masterGain);
+      osc.start(t); osc.stop(t + 0.52);
+    });
+  }
+
+  function playFloralShockwave(now) {
+    const osc = audioCtx.createOscillator();
+    const overtone = audioCtx.createOscillator();
+    const gain1 = audioCtx.createGain();
+    const gain2 = audioCtx.createGain();
+
+    osc.type = 'sine'; osc.frequency.setValueAtTime(65.41, now);
+    overtone.type = 'sine'; overtone.frequency.setValueAtTime(196.2, now);
+
+    gain1.gain.setValueAtTime(0.001, now);
+    gain1.gain.linearRampToValueAtTime(0.4, now + 0.04);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
+
+    gain2.gain.setValueAtTime(0.001, now);
+    gain2.gain.linearRampToValueAtTime(0.15, now + 0.04);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+
+    osc.connect(gain1); overtone.connect(gain2);
+    gain1.connect(masterGain); gain2.connect(masterGain);
+    osc.start(now); overtone.start(now);
+    osc.stop(now + 1.02); overtone.stop(now + 1.02);
+  }
+
+  // --- SKY SOUNDS (Dreamy / Celestial / High Shimmer / Air Sweep) ---
+  function playSkyPop(now, p) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    const highF = 784 + p * 600;
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(highF, now);
+    osc.frequency.exponentialRampToValueAtTime(highF * 1.5, now + 0.1);
+
+    gain.gain.setValueAtTime(0.25, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+    osc.connect(gain); gain.connect(masterGain);
+    osc.start(now); osc.stop(now + 0.26);
+
+    const buffer = getNoiseBuffer();
+    if (buffer) {
+      const src = audioCtx.createBufferSource();
+      src.buffer = buffer;
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(3200, now);
+      filter.Q.setValueAtTime(4, now);
+
+      const ngain = audioCtx.createGain();
+      ngain.gain.setValueAtTime(0.08, now);
+      ngain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+      src.connect(filter); filter.connect(ngain); ngain.connect(masterGain);
+      src.start(now); src.stop(now + 0.16);
+    }
+  }
+
+  function playSkySwoosh(now, p) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    const startF = 523 + p * 400;
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(startF, now);
+    osc.frequency.exponentialRampToValueAtTime(startF * 2.5, now + 0.3);
+
+    gain.gain.setValueAtTime(0.001, now);
+    gain.gain.linearRampToValueAtTime(0.22, now + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+    osc.connect(gain); gain.connect(masterGain);
+    osc.start(now); osc.stop(now + 0.36);
+
+    const buffer = getNoiseBuffer();
+    if (buffer) {
+      const src = audioCtx.createBufferSource();
+      src.buffer = buffer;
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass'; filter.Q.setValueAtTime(3, now);
+      filter.frequency.setValueAtTime(800, now);
+      filter.frequency.exponentialRampToValueAtTime(4500, now + 0.3);
+
+      const ngain = audioCtx.createGain();
+      ngain.gain.setValueAtTime(0.1, now);
+      ngain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+
+      src.connect(filter); filter.connect(ngain); ngain.connect(masterGain);
+      src.start(now); src.stop(now + 0.33);
+    }
+  }
+
+  function playSkyShimmer(now, p) {
+    const scale = [659.25, 783.99, 987.77, 1318.51, 1567.98, 1975.53];
+    const startIdx = Math.floor(p * 2);
+    const notes = scale.slice(startIdx, startIdx + 5);
+
+    notes.forEach((freq, idx) => {
+      const t = now + idx * 0.045;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t);
+
+      gain.gain.setValueAtTime(0.18, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+
+      osc.connect(gain); gain.connect(masterGain);
+      osc.start(t); osc.stop(t + 0.47);
+    });
+  }
+
+  function playSkySwell(now, p) {
+    const baseF = 220 + p * 110;
+    const ratios = [1, 1.25, 1.5, 1.875];
+    ratios.forEach((ratio) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(baseF * ratio, now);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.12, now + 0.18);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.75);
+
+      osc.connect(gain); gain.connect(masterGain);
+      osc.start(now); osc.stop(now + 0.77);
+    });
+  }
+
+  function playSkyWhirl(now, p) {
+    const carrier = audioCtx.createOscillator();
+    const modulator = audioCtx.createOscillator();
+    const modGain = audioCtx.createGain();
+    const gain = audioCtx.createGain();
+
+    const cFreq = 880 + p * 400;
+    carrier.type = 'sine'; carrier.frequency.setValueAtTime(cFreq, now);
+
+    modulator.type = 'sine'; modulator.frequency.setValueAtTime(32, now);
+    modGain.gain.setValueAtTime(180, now);
+
+    modulator.connect(carrier.frequency);
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+    carrier.connect(gain); gain.connect(masterGain);
+    modulator.start(now); carrier.start(now);
+    modulator.stop(now + 0.36); carrier.stop(now + 0.36);
+  }
+
+  function playSkyTwinkle(now, p) {
+    for (let i = 0; i < 4; i++) {
+      const t = now + i * 0.04;
+      const freq = 1000 + Math.random() * 1800;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t);
+
+      gain.gain.setValueAtTime(0.15, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+
+      osc.connect(gain); gain.connect(masterGain);
+      osc.start(t); osc.stop(t + 0.37);
+    }
+  }
+
+  function playSkyShockwave(now) {
+    const freqs = [146.83, 220.00, 293.66, 440.00];
+    freqs.forEach((f) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine'; osc.frequency.setValueAtTime(f, now);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.18, now + 0.12);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.95);
+
+      osc.connect(gain); gain.connect(masterGain);
+      osc.start(now); osc.stop(now + 0.97);
+    });
+
+    const buffer = getNoiseBuffer();
+    if (buffer) {
+      const src = audioCtx.createBufferSource();
+      src.buffer = buffer;
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(1500, now);
+      filter.frequency.exponentialRampToValueAtTime(200, now + 0.8);
+
+      const ngain = audioCtx.createGain();
+      ngain.gain.setValueAtTime(0.12, now);
+      ngain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+
+      src.connect(filter); filter.connect(ngain); ngain.connect(masterGain);
+      src.start(now); src.stop(now + 0.82);
+    }
+  }
+
+  // Master Sound Engine Interface
+  const SoundEngine = {
+    playShapeSound(s, style) {
+      if (soundMuted) return;
+      initAudio();
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const pitchFactor = 1 - Math.min(1, Math.max(0, (s.size - 18) / 68));
+
+      if (style === 'geometric') {
+        switch(s.click) {
+          case 'pop': playFunkyPop(now, pitchFactor); break;
+          case 'fling': playFunkyBoing(now, pitchFactor); break;
+          case 'rainbow': playFunkyChirp(now, pitchFactor); break;
+          case 'grow': playFunkyGrow(now, pitchFactor); break;
+          case 'spinout': playFunkyWobble(now, pitchFactor); break;
+          case 'split': playFunkySplit(now, pitchFactor); break;
+        }
+      } else if (style === 'floral') {
+        switch(s.click) {
+          case 'pop': playFloralPop(now, pitchFactor); break;
+          case 'fling': playFloralSlide(now, pitchFactor); break;
+          case 'rainbow': playFloralArpeggio(now, pitchFactor); break;
+          case 'grow': playFloralGroundedSwell(now, pitchFactor); break;
+          case 'spinout': playFloralVibrato(now, pitchFactor); break;
+          case 'split': playFloralBloom(now, pitchFactor); break;
+        }
+      } else if (style === 'sky') {
+        switch(s.click) {
+          case 'pop': playSkyPop(now, pitchFactor); break;
+          case 'fling': playSkySwoosh(now, pitchFactor); break;
+          case 'rainbow': playSkyShimmer(now, pitchFactor); break;
+          case 'grow': playSkySwell(now, pitchFactor); break;
+          case 'spinout': playSkyWhirl(now, pitchFactor); break;
+          case 'split': playSkyTwinkle(now, pitchFactor); break;
+        }
+      }
+    },
+
+    playShockwaveSound(style) {
+      if (soundMuted) return;
+      initAudio();
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      if (style === 'geometric') playFunkyShockwave(now);
+      else if (style === 'floral') playFloralShockwave(now);
+      else if (style === 'sky') playSkyShockwave(now);
+    }
+  };
+
+  let nodes=[], edges=[], shapes=[], particles=[];
+
+  function build(){
+    DPR=Math.min(window.devicePixelRatio||1,2);
+    W=window.innerWidth; H=window.innerHeight;
+    canvas.width=W*DPR; canvas.height=H*DPR;
+    canvas.style.width=W+'px'; canvas.style.height=H+'px';
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    ctx.lineJoin='round'; ctx.lineCap='round';
+
+    const cell=Math.max(120,Math.min(190,Math.round(Math.sqrt(W*H)/7)));
+    const cols=Math.ceil(W/cell)+2, rows=Math.ceil(H/cell)+2;
+    nodes=[]; edges=[];
+    const grid=[];
+    for(let r=0;r<rows;r++){
+      grid[r]=[];
+      for(let c=0;c<cols;c++){
+        const jx=(Math.random()-.5)*cell*0.7, jy=(Math.random()-.5)*cell*0.7;
+        const hx=(c-0.5)*cell+jx, hy=(r-0.5)*cell+jy;
+        grid[r][c]=nodes.length;
+        const colIdx=(Math.random()*THEME.palette.length)|0;
+        nodes.push({hx,hy,x:hx,y:hy,vx:0,vy:0,r:3.5+Math.random()*3.5,colIndex:colIdx,col:hexToRgbArr(THEME.palette[colIdx]),ph:Math.random()*Math.PI*2});
+      }
+    }
+    const addEdge=(a,b)=>{const A=nodes[a],B=nodes[b];edges.push({a,b,rest:Math.hypot(A.hx-B.hx,A.hy-B.hy),w:3.5+Math.random()*4.5,ph:Math.random()*Math.PI*2,amp:3+Math.random()*6,sp:0.6+Math.random()*1.1});};
+    for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+      const cur=grid[r][c];
+      if(c+1<cols)addEdge(cur,grid[r][c+1]);
+      if(r+1<rows)addEdge(cur,grid[r+1][c]);
+      if(r+1<rows&&c+1<cols&&Math.random()<0.7)addEdge(cur,grid[r+1][c+1]);
+      if(r+1<rows&&c-1>=0&&Math.random()<0.35)addEdge(cur,grid[r+1][c-1]);
+    }
+
+    const count=Math.max(16,Math.min(40,Math.round(W*H/42000)));
+    shapes=[];
+    for(let i=0;i<count;i++) shapes.push(makeShape());
+    particles=[];
+  }
+
+  function makeShape(x,y){
+    const size=rnd(18,86);
+    const hx=x!==undefined?x:rnd(60,W-60);
+    const hy=y!==undefined?y:rnd(60,H-60);
+    const colIdx=(Math.random()*THEME.palette.length)|0;
+    return {
+      kind:pick(currentKinds()),
+      hover:pick(HOVER_STYLES),
+      click:pick(CLICK_STYLES),
+      hx,hy,
+      x:hx, y:hy,
+      vx:0,vy:0,
+      size,
+      colIndex:colIdx,
+      col:hexToRgbArr(THEME.palette[colIdx]),
+      rot:rnd(0,Math.PI*2), rotV:0,
+      baseRot:rnd(-0.5,0.5),
+      energy:0,
+      clickE:0,
+      hue:0,
+      ph:rnd(0,Math.PI*2),
+      drift:rnd(0.1,0.4),
+      dead:0
+    };
+  }
+
+  function spawnParticles(x,y,col,n){
+    for(let i=0;i<n;i++){
+      const a=Math.random()*Math.PI*2, sp=rnd(2,9);
+      particles.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:1,size:rnd(3,9),col,rot:rnd(0,6),rotV:rnd(-.3,.3),kind:pick(currentKinds())});
+    }
+  }
+
+  const K_ANCHOR=0.012, K_EDGE=0.055, DAMP=0.90, MOUSE_R=210, MOUSE_F=2.6;
+
+  function step(){
+    for(const n of nodes){
+      n.vx+=(n.hx-n.x)*K_ANCHOR; n.vy+=(n.hy-n.y)*K_ANCHOR;
+      n.vx+=Math.sin(t*0.0012+n.ph)*0.03; n.vy+=Math.cos(t*0.001+n.ph)*0.03;
+    }
+    for(const e of edges){
+      const A=nodes[e.a],B=nodes[e.b];
+      let dx=B.x-A.x, dy=B.y-A.y, d=Math.hypot(dx,dy)||0.001;
+      const f=(d-e.rest)/d*K_EDGE*0.5, fx=dx*f, fy=dy*f;
+      A.vx+=fx; A.vy+=fy; B.vx-=fx; B.vy-=fy;
+    }
+    if(mouse.active){
+      for(const n of nodes){
+        const dx=n.x-mouse.x, dy=n.y-mouse.y, d=Math.hypot(dx,dy);
+        if(d<MOUSE_R && d>0.01){const force=(1-d/MOUSE_R);n.vx+=(dx/d)*force*MOUSE_F;n.vy+=(dy/d)*force*MOUSE_F;}
+      }
+    }
+    for(const n of nodes){ n.vx*=DAMP; n.vy*=DAMP; n.x+=n.vx; n.y+=n.vy; }
+
+    for(const s of shapes){
+      s.energy*=0.92; s.clickE*=0.94; s.rotV*=0.96; s.hue*=0.95;
+
+      if(s.dead>0){ s.dead-=1; if(s.dead===0) respawn(s); continue; }
+
+      s.vx+=(s.hx-s.x)*0.02; s.vy+=(s.hy-s.y)*0.02;
+      s.vx*=0.9; s.vy*=0.9;
+      s.x+=s.vx + Math.sin(t*0.0009+s.ph)*s.drift;
+      s.y+=s.vy + Math.cos(t*0.0011+s.ph)*s.drift;
+      s.rot+=s.rotV + s.baseRot*0.004;
+
+      if(mouse.active){
+        const d=Math.hypot(s.x-mouse.x,s.y-mouse.y);
+        if(d<s.size*0.7+40) s.energy=Math.min(1,s.energy+0.18);
+      }
+    }
+
+    for(const p of particles){
+      p.vy+=0.18; p.vx*=0.99; p.x+=p.vx; p.y+=p.vy; p.rot+=p.rotV; p.life-=0.02;
+    }
+    particles=particles.filter(p=>p.life>0);
+  }
+
+  function respawn(s){
+    Object.assign(s, makeShape());
+    s.x=s.hx; s.y=s.hy;
+  }
+
+  function shapePath(kind,r){
+    ctx.beginPath();
+    if(kind==='circle'){ ctx.arc(0,0,r,0,Math.PI*2); return; }
+    if(kind==='plus'){
+      const a=r*0.42;
+      ctx.moveTo(-a,-r);ctx.lineTo(a,-r);ctx.lineTo(a,-a);ctx.lineTo(r,-a);ctx.lineTo(r,a);ctx.lineTo(a,a);
+      ctx.lineTo(a,r);ctx.lineTo(-a,r);ctx.lineTo(-a,a);ctx.lineTo(-r,a);ctx.lineTo(-r,-a);ctx.lineTo(-a,-a);ctx.closePath();return;
+    }
+    if(kind==='star'){
+      const spikes=5, inner=r*0.45;
+      for(let i=0;i<spikes*2;i++){
+        const rad=i%2?inner:r, ang=i*Math.PI/spikes - Math.PI/2;
+        const x=Math.cos(ang)*rad, y=Math.sin(ang)*rad;
+        i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+      }
+      ctx.closePath();return;
+    }
+    if(kind==='flower'||kind==='blossom'){
+      const petals=kind==='flower'?6:5;
+      const pr=kind==='flower'?r*0.42:r*0.5;
+      const pw=kind==='flower'?r*0.24:r*0.3;
+      for(let i=0;i<petals;i++){
+        const ang=i*Math.PI*2/petals - Math.PI/2;
+        const cx=Math.cos(ang)*pr, cy=Math.sin(ang)*pr;
+        ctx.moveTo(cx+Math.cos(ang)*pw,cy+Math.sin(ang)*pw);
+        ctx.ellipse(cx,cy,pr,pw,ang,0,Math.PI*2);
+      }
+      ctx.moveTo(r*0.2,0);
+      ctx.arc(0,0,r*0.2,0,Math.PI*2);
+      return;
+    }
+    if(kind==='petal'){
+      ctx.moveTo(0,-r);
+      ctx.quadraticCurveTo(r*0.75,-r*0.25,0,r);
+      ctx.quadraticCurveTo(-r*0.75,-r*0.25,0,-r);
+      ctx.closePath();return;
+    }
+    if(kind==='leaf'){
+      ctx.moveTo(0,-r);
+      ctx.bezierCurveTo(r*0.85,-r*0.45,r*0.85,r*0.5,0,r);
+      ctx.bezierCurveTo(-r*0.85,r*0.5,-r*0.85,-r*0.45,0,-r);
+      ctx.moveTo(0,-r*0.7); ctx.lineTo(0,r*0.7);
+      ctx.closePath();return;
+    }
+    if(kind==='bud'){
+      ctx.moveTo(0,-r);
+      ctx.quadraticCurveTo(r*0.55,-r*0.15,r*0.32,r*0.55);
+      ctx.quadraticCurveTo(0,r*0.95,-r*0.32,r*0.55);
+      ctx.quadraticCurveTo(-r*0.55,-r*0.15,0,-r);
+      ctx.closePath();return;
+    }
+    if(kind==='clover'){
+      const lr=r*0.42;
+      for(let i=0;i<4;i++){
+        const ang=i*Math.PI/2 + Math.PI/4;
+        const cx=Math.cos(ang)*lr, cy=Math.sin(ang)*lr;
+        ctx.moveTo(cx+lr,cy);
+        ctx.arc(cx,cy,lr,0,Math.PI*2);
+      }
+      return;
+    }
+    if(kind==='cloud'){
+      ctx.moveTo(-r*0.78,r*0.38);
+      ctx.bezierCurveTo(-r*1.05,r*0.32,-r*1.1,-r*0.18,-r*0.72,-r*0.28);
+      ctx.bezierCurveTo(-r*0.66,-r*0.72,-r*0.02,-r*0.86,r*0.22,-r*0.5);
+      ctx.bezierCurveTo(r*0.6,-r*0.68,r*1.02,-r*0.32,r*0.86,r*0.02);
+      ctx.bezierCurveTo(r*1.16,r*0.08,r*1.14,r*0.5,r*0.8,r*0.5);
+      ctx.lineTo(-r*0.62,r*0.5);
+      ctx.bezierCurveTo(-r*0.92,r*0.5,-r*1.0,r*0.44,-r*0.78,r*0.38);
+      ctx.closePath();return;
+    }
+    if(kind==='starTwinkle'){
+      const spikes=4, inner=r*0.32;
+      for(let i=0;i<spikes*2;i++){
+        const rad=i%2?inner:r, ang=i*Math.PI/spikes - Math.PI/2;
+        const x=Math.cos(ang)*rad, y=Math.sin(ang)*rad;
+        i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+      }
+      ctx.closePath();return;
+    }
+    if(kind==='moon'){
+      ctx.arc(0,0,r,Math.PI*0.35,Math.PI*1.65);
+      ctx.arc(r*0.4,0,r*0.82,Math.PI*1.65,Math.PI*0.35,true);
+      ctx.closePath();return;
+    }
+    if(kind==='lightning'){
+      ctx.moveTo(r*0.15,-r);
+      ctx.lineTo(-r*0.35,-r*0.05);
+      ctx.lineTo(0,-r*0.05);
+      ctx.lineTo(-r*0.2,r);
+      ctx.lineTo(r*0.35,r*0.05);
+      ctx.lineTo(0,r*0.05);
+      ctx.closePath();return;
+    }
+    let sides=3;
+    if(kind==='square'||kind==='diamond')sides=4;
+    else if(kind==='pentagon')sides=5;
+    else if(kind==='hexagon')sides=6;
+    const rot0 = kind==='square' ? Math.PI/4 : (kind==='diamond' ? 0 : -Math.PI/2);
+    for(let i=0;i<sides;i++){
+      const ang=rot0 + i*Math.PI*2/sides;
+      const x=Math.cos(ang)*r, y=Math.sin(ang)*r;
+      i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+    }
+    ctx.closePath();
+  }
+
+  function drawShape(s){
+    const e=Math.max(0.1,s.energy);
+    const ce=s.clickE;
+    let cx=s.x, cy=s.y, scaleX=1, scaleY=1, rot=s.rot, r=s.size/2;
+
+    if(s.hover==='bounce'){ const o=Math.sin(t*0.012+s.ph); cy-=Math.abs(o)*e*20; const sq=o*e*0.18; scaleX*=1+sq; scaleY*=1-sq; }
+    else if(s.hover==='shake'){ cx+=(Math.random()-.5)*e*14; cy+=(Math.random()-.5)*e*14; }
+    else if(s.hover==='jiggle'){ rot+=Math.sin(t*0.02+s.ph)*e*0.5; const j=1+Math.sin(t*0.028+s.ph)*e*0.18; scaleX*=j; scaleY*=2-j; }
+    else if(s.hover==='spin'){ rot+=e*Math.sin(t*0.03)*0.6 + e*0.15; }
+    else if(s.hover==='pulse'){ const p=1+Math.sin(t*0.02+s.ph)*e*0.4; scaleX*=p; scaleY*=p; }
+    else if(s.hover==='wobble'){ scaleX*=1+Math.sin(t*0.03+s.ph)*e*0.3; scaleY*=1+Math.cos(t*0.03+s.ph)*e*0.3; }
+    else if(s.hover==='orbit'){ cx+=Math.cos(t*0.02+s.ph)*e*18; cy+=Math.sin(t*0.02+s.ph)*e*18; }
+
+    let col=s.col.slice();
+    if(ce>0.01){
+      if(s.click==='grow'){ const g=1+ce*2.2; scaleX*=g; scaleY*=g; }
+      else if(s.click==='spinout'){ rot+=ce*12; }
+      else if(s.click==='rainbow'){ const h=(t*0.02+s.hue*10); col=hsl(h); const g=1+ce*0.3; scaleX*=g;scaleY*=g; }
+      else if(s.click==='fling'){ rot+=s.rotV*3; }
+    }
+
+    ctx.save();
+    ctx.translate(cx,cy); ctx.rotate(rot); ctx.scale(scaleX,scaleY);
+    ctx.shadowColor=`rgba(${col[0]|0},${col[1]|0},${col[2]|0},.4)`; ctx.shadowBlur=(e*14)+(ce*24);
+    shapePath(s.kind,r);
+    ctx.fillStyle=rgb(col); ctx.fill();
+    ctx.shadowBlur=0;
+    ctx.lineWidth=4; ctx.strokeStyle=THEME.outline; ctx.stroke();
+    ctx.restore();
+  }
+
+  function hsl(h,s,l){
+    h=((h%360)+360)%360; if(s===undefined)s=0.9; if(l===undefined)l=0.6;
+    const c=(1-Math.abs(2*l-1))*s, x=c*(1-Math.abs((h/60)%2-1)), m=l-c/2;
+    let r=0,g=0,b=0;
+    if(h<60){r=c;g=x;}else if(h<120){r=x;g=c;}else if(h<180){g=c;b=x;}
+    else if(h<240){g=x;b=c;}else if(h<300){r=x;b=c;}else{r=c;b=x;}
+    return [(r+m)*255,(g+m)*255,(b+m)*255];
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(const e of edges){
+      const A=nodes[e.a],B=nodes[e.b];
+      const mx=(A.x+B.x)/2, my=(A.y+B.y)/2;
+      let nx=-(B.y-A.y), ny=(B.x-A.x); const nl=Math.hypot(nx,ny)||1; nx/=nl; ny/=nl;
+      const off=Math.sin(t*0.002*e.sp+e.ph)*e.amp;
+      const cx=mx+nx*off, cy=my+ny*off;
+      ctx.strokeStyle=THEME.outline; ctx.lineWidth=e.w+3.5;
+      ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.quadraticCurveTo(cx,cy,B.x,B.y); ctx.stroke();
+      const g=ctx.createLinearGradient(A.x,A.y,B.x,B.y);
+      g.addColorStop(0,rgb(A.col)); g.addColorStop(1,rgb(B.col));
+      ctx.strokeStyle=g; ctx.lineWidth=e.w;
+      ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.quadraticCurveTo(cx,cy,B.x,B.y); ctx.stroke();
+    }
+    for(const n of nodes){
+      ctx.beginPath(); ctx.arc(n.x,n.y,n.r+2,0,Math.PI*2); ctx.fillStyle=THEME.outline; ctx.fill();
+      ctx.beginPath(); ctx.arc(n.x,n.y,n.r,0,Math.PI*2); ctx.fillStyle=rgb(n.col); ctx.fill();
+    }
+    for(const s of shapes){ if(s.dead>0) continue; drawShape(s); }
+    for(const p of particles){
+      ctx.save();
+      ctx.globalAlpha=Math.max(0,p.life);
+      ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      ctx.fillStyle=rgb(p.col); ctx.strokeStyle=THEME.outline; ctx.lineWidth=2;
+      shapePath(p.kind,p.size);
+      ctx.fill(); ctx.stroke();
+      ctx.restore();
+    }
+    ctx.globalAlpha=1;
+  }
+
+  function frame(){ t+=16; step(); draw(); requestAnimationFrame(frame); }
+
+  function moveTo(x,y){ mouse.x=x; mouse.y=y; mouse.active=true; }
+  window.addEventListener('mousemove',e=>{
+    if(e.target.closest('#uiRoot')||e.target.closest('#welcomeOverlay')||e.target.closest('#colorPickerOverlay')){ mouse.active=false; return; }
+    moveTo(e.clientX,e.clientY);
+  });
+  window.addEventListener('mouseout',()=>mouse.active=false);
+  window.addEventListener('touchmove',e=>{const p=e.touches[0];if(p)moveTo(p.clientX,p.clientY);},{passive:true});
+  window.addEventListener('touchend',()=>mouse.active=false);
+
+  function hitShape(x,y){
+    for(let i=shapes.length-1;i>=0;i--){
+      const s=shapes[i]; if(s.dead>0) continue;
+      if(Math.hypot(s.x-x,s.y-y) < s.size*0.62+8) return s;
+    }
+    return null;
+  }
+
+  function triggerClick(s){
+    s.clickE=1;
+    SoundEngine.playShapeSound(s, shapeStyle);
+    if(s.click==='pop'){
+      spawnParticles(s.x,s.y,s.col,18);
+      s.dead=Math.round(rnd(40,90));
+    } else if(s.click==='fling'){
+      const a=Math.random()*Math.PI*2, sp=rnd(9,18);
+      s.vx+=Math.cos(a)*sp; s.vy+=Math.sin(a)*sp; s.rotV+=rnd(-.5,.5);
+      s.hx=rnd(60,W-60); s.hy=rnd(60,H-60);
+    } else if(s.click==='rainbow'){
+      s.hue=1;
+    } else if(s.click==='grow'){
+      s.energy=1;
+    } else if(s.click==='spinout'){
+      s.rotV+=rnd(0.6,1.2)*(Math.random()<.5?-1:1);
+    } else if(s.click==='split'){
+      spawnParticles(s.x,s.y,s.col,10);
+      const n=2+((Math.random()*2)|0);
+      for(let k=0;k<n;k++){
+        if(shapes.length>70) break;
+        const baby=makeShape(s.x,s.y);
+        baby.size=rnd(14,28); baby.colIndex=s.colIndex; baby.col=s.col.slice();
+        const a=Math.random()*Math.PI*2, sp=rnd(6,12);
+        baby.vx=Math.cos(a)*sp; baby.vy=Math.sin(a)*sp;
+        baby.hx=Math.min(W-40,Math.max(40,s.x+Math.cos(a)*rnd(60,160)));
+        baby.hy=Math.min(H-40,Math.max(40,s.y+Math.sin(a)*rnd(60,160)));
+        shapes.push(baby);
+      }
+    }
+  }
+
+  function onPress(x,y){
+    const s=hitShape(x,y);
+    if(s){ triggerClick(s); }
+    else {
+      SoundEngine.playShockwaveSound(shapeStyle);
+      for(const n of nodes){
+        const dx=n.x-x, dy=n.y-y, d=Math.hypot(dx,dy);
+        if(d<260&&d>0.01){const f=(1-d/260)*7;n.vx+=dx/d*f;n.vy+=dy/d*f;}
+      }
+      for(const sh of shapes){
+        if(sh.dead>0) continue;
+        const dx=sh.x-x, dy=sh.y-y, d=Math.hypot(dx,dy);
+        if(d<220&&d>0.01){const f=(1-d/220)*10;sh.vx+=dx/d*f;sh.vy+=dy/d*f;sh.energy=1;}
+      }
+    }
+  }
+  window.addEventListener('mousedown',e=>{
+    if(e.target.closest('#uiRoot')||e.target.closest('#welcomeOverlay')||e.target.closest('#colorPickerOverlay')) return;
+    onPress(e.clientX,e.clientY);
+  });
+  window.addEventListener('touchstart',e=>{
+    if(e.target.closest('#uiRoot')||e.target.closest('#welcomeOverlay')||e.target.closest('#colorPickerOverlay')) return;
+    const p=e.touches[0];if(p)onPress(p.clientX,p.clientY);
+  },{passive:true});
+
+  window.addEventListener('resize',build);
+
+  // ---------- audio toggle UI wiring ----------
+  const audioBtn = document.getElementById('audioBtn');
+  if(audioBtn){
+    audioBtn.addEventListener('click', ()=>{
+      soundMuted = !soundMuted;
+      audioBtn.textContent = soundMuted ? '🔇' : '🔊';
+      audioBtn.title = soundMuted ? 'Sound Off (Click to unmute)' : 'Sound On (Click to mute)';
+      if(!soundMuted) initAudio();
+    });
+  }
+
+  // ---------- settings UI wiring ----------
+  function recolorAll(){
+    for(const n of nodes){
+      n.colIndex = (Math.random()*THEME.palette.length)|0;
+      n.col = hexToRgbArr(THEME.palette[n.colIndex]);
+    }
+    for(const s of shapes){
+      if(s.dead===0){
+        s.colIndex = (Math.random()*THEME.palette.length)|0;
+        s.col = hexToRgbArr(THEME.palette[s.colIndex]);
+      }
+    }
+  }
+
+  function updatePaletteColor(i, hex){
+    THEME.palette[i] = ensureNotBlack(hex, PRESETS.colorful.palette[i] || '#8a5fd6');
+    const rgbArr = hexToRgbArr(THEME.palette[i]);
+    for(const n of nodes){ if(n.colIndex === i) n.col = rgbArr; }
+    for(const s of shapes){ if(s.colIndex === i) s.col = rgbArr; }
+  }
+
+  function reshapeAll(){
+    for(const s of shapes) if(s.dead===0) s.kind=pick(currentKinds());
+  }
+
+  const gearBtn=document.getElementById('gearBtn');
+  const settingsPanel=document.getElementById('settingsPanel');
+  const welcomeCard=document.getElementById('welcomeCard');
+  const closeBtn=document.getElementById('closeBtn');
+  const bgSwatch=document.getElementById('bgSwatch');
+  const zebraSwatch=document.getElementById('zebraSwatch');
+  const outlineSwatch=document.getElementById('outlineSwatch');
+  const paletteRow=document.getElementById('paletteRow');
+
+  function updatePanelTheme(){
+    const [r,g,b]=hexToRgbArr(THEME.bg);
+    const lum=0.2126*r+0.7152*g+0.0722*b;
+    const isDark = lum < 130;
+    settingsPanel.classList.toggle('dark', isDark);
+    if(welcomeCard) welcomeCard.classList.toggle('dark', isDark);
+    const cpCard = document.getElementById('colorPickerCard');
+    if(cpCard) cpCard.classList.toggle('dark', isDark);
+  }
+
+  // ---------- CUSTOM IN-APP COLOR PICKER MODULE ----------
+  const colorPickerOverlay = document.getElementById('colorPickerOverlay');
+  const cpSatValBox = document.getElementById('cpSatValBox');
+  const cpSatValBg = document.getElementById('cpSatValBg');
+  const cpCrosshair = document.getElementById('cpCrosshair');
+  const cpHueBox = document.getElementById('cpHueBox');
+  const cpHueHandle = document.getElementById('cpHueHandle');
+  const cpPreviewSwatch = document.getElementById('cpPreviewSwatch');
+  const cpHexInput = document.getElementById('cpHexInput');
+  const cpCloseBtn = document.getElementById('cpCloseBtn');
+  const cpCancelBtn = document.getElementById('cpCancelBtn');
+  const cpApplyBtn = document.getElementById('cpApplyBtn');
+
+  let cpState = { h: 0, s: 100, v: 100, initialHex: '#ffffff', onChange: null };
+  let cpPendingChangeHex = null;
+  let cpRafId = null;
+
+  function setPickerColor(h, s, v, updateHex = true) {
+    cpState.h = Math.max(0, Math.min(360, h));
+    cpState.s = Math.max(0, Math.min(100, s));
+    cpState.v = Math.max(0, Math.min(100, v));
+
+    // Update 2D Sat/Val Background
+    cpSatValBg.style.backgroundColor = `hsl(${cpState.h}, 100%, 50%)`;
+
+    // Update Crosshair & Handle positions
+    cpCrosshair.style.left = cpState.s + '%';
+    cpCrosshair.style.top = (100 - cpState.v) + '%';
+    cpHueHandle.style.left = (cpState.h / 360 * 100) + '%';
+
+    // Calculate current hex
+    const rgbArr = hsvToRgb(cpState.h, cpState.s, cpState.v);
+    const hex = rgbToHex(rgbArr);
+
+    cpPreviewSwatch.style.backgroundColor = hex;
+    if (updateHex) cpHexInput.value = hex.toUpperCase();
+
+    // Coalesce onChange callbacks to requestAnimationFrame to prevent drag lag
+    cpPendingChangeHex = hex;
+    if (!cpRafId) {
+      cpRafId = requestAnimationFrame(() => {
+        cpRafId = null;
+        if (typeof cpState.onChange === 'function' && cpPendingChangeHex) {
+          cpState.onChange(cpPendingChangeHex);
+          cpPendingChangeHex = null;
+        }
+      });
+    }
+  }
+
+  function openColorPicker(initialHex, onChangeCallback) {
+    updatePanelTheme();
+    cpState.initialHex = initialHex;
+    cpState.onChange = onChangeCallback;
+
+    const rgbArr = hexToRgbArr(initialHex);
+    const hsv = rgbToHsv(rgbArr[0], rgbArr[1], rgbArr[2]);
+    setPickerColor(hsv[0], hsv[1], hsv[2]);
+
+    colorPickerOverlay.classList.remove('hidden');
+    colorPickerOverlay.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeColorPicker() {
+    colorPickerOverlay.classList.add('hidden');
+    colorPickerOverlay.setAttribute('aria-hidden', 'true');
+  }
+
+  // Pointer dragging logic for 2D Sat/Val box
+  let isDraggingSatVal = false;
+  function handleSatValPointer(e) {
+    const rect = cpSatValBox.getBoundingClientRect();
+    if(!rect.width || !rect.height) return;
+    const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
+    const y = Math.max(0, Math.min(rect.height, e.clientY - rect.top));
+    const s = (x / rect.width) * 100;
+    const v = (1 - (y / rect.height)) * 100;
+    setPickerColor(cpState.h, s, v);
+  }
+
+  cpSatValBox.addEventListener('pointerdown', e => {
+    isDraggingSatVal = true;
+    try { cpSatValBox.setPointerCapture(e.pointerId); } catch(err){}
+    handleSatValPointer(e);
+  });
+  cpSatValBox.addEventListener('pointermove', e => {
+    if (isDraggingSatVal) handleSatValPointer(e);
+  });
+  const stopSatValDrag = e => {
+    if (isDraggingSatVal) {
+      isDraggingSatVal = false;
+      try { cpSatValBox.releasePointerCapture(e.pointerId); } catch(err){}
+    }
+  };
+  cpSatValBox.addEventListener('pointerup', stopSatValDrag);
+  cpSatValBox.addEventListener('pointercancel', stopSatValDrag);
+
+  // Pointer dragging logic for Hue bar
+  let isDraggingHue = false;
+  function handleHuePointer(e) {
+    const rect = cpHueBox.getBoundingClientRect();
+    if(!rect.width) return;
+    const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
+    const h = (x / rect.width) * 360;
+    setPickerColor(h, cpState.s, cpState.v);
+  }
+
+  cpHueBox.addEventListener('pointerdown', e => {
+    isDraggingHue = true;
+    try { cpHueBox.setPointerCapture(e.pointerId); } catch(err){}
+    handleHuePointer(e);
+  });
+  cpHueBox.addEventListener('pointermove', e => {
+    if (isDraggingHue) handleHuePointer(e);
+  });
+  const stopHueDrag = e => {
+    if (isDraggingHue) {
+      isDraggingHue = false;
+      try { cpHueBox.releasePointerCapture(e.pointerId); } catch(err){}
+    }
+  };
+  cpHueBox.addEventListener('pointerup', stopHueDrag);
+  cpHueBox.addEventListener('pointercancel', stopHueDrag);
+
+  // Direct Hex Input
+  cpHexInput.addEventListener('input', () => {
+    let val = cpHexInput.value.trim();
+    if (!val.startsWith('#')) val = '#' + val;
+    if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+      const rgbArr = hexToRgbArr(val);
+      const hsv = rgbToHsv(rgbArr[0], rgbArr[1], rgbArr[2]);
+      setPickerColor(hsv[0], hsv[1], hsv[2], false);
+    }
+  });
+
+  // Quick Swatches
+  document.querySelectorAll('.cpQuickSwatch').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const hex = btn.dataset.hex;
+      const rgbArr = hexToRgbArr(hex);
+      const hsv = rgbToHsv(rgbArr[0], rgbArr[1], rgbArr[2]);
+      setPickerColor(hsv[0], hsv[1], hsv[2]);
+    });
+  });
+
+  // Picker Controls
+  cpCloseBtn.addEventListener('click', () => {
+    if (typeof cpState.onChange === 'function') cpState.onChange(cpState.initialHex);
+    closeColorPicker();
+  });
+  cpCancelBtn.addEventListener('click', () => {
+    if (typeof cpState.onChange === 'function') cpState.onChange(cpState.initialHex);
+    closeColorPicker();
+  });
+  cpApplyBtn.addEventListener('click', closeColorPicker);
+
+  // ---------- SYNC INPUTS WITH CUSTOM PICKER ----------
+  function syncInputs(){
+    bgSwatch.style.backgroundColor = THEME.bg;
+    zebraSwatch.style.backgroundColor = THEME.zebra;
+    outlineSwatch.style.backgroundColor = THEME.outline;
+
+    paletteRow.innerHTML = '';
+    THEME.palette.forEach((hex, i) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'swatchBtn';
+      btn.style.backgroundColor = hex;
+      btn.setAttribute('aria-label', 'Shape color ' + (i + 1));
+      btn.addEventListener('click', () => {
+        openColorPicker(THEME.palette[i], (newHex) => {
+          updatePaletteColor(i, newHex);
+          btn.style.backgroundColor = THEME.palette[i];
+        });
+      });
+      paletteRow.appendChild(btn);
+    });
+  }
+
+  bgSwatch.addEventListener('click', () => {
+    openColorPicker(THEME.bg, (newHex) => {
+      THEME.bg = ensureNotBlack(newHex, '#f6f3e9');
+      bgSwatch.style.backgroundColor = THEME.bg;
+      applyBackground();
+    });
+  });
+
+  zebraSwatch.addEventListener('click', () => {
+    openColorPicker(THEME.zebra, (newHex) => {
+      THEME.zebra = ensureNotBlack(newHex, '#2b2a55');
+      zebraSwatch.style.backgroundColor = THEME.zebra;
+      applyBackground();
+    });
+  });
+
+  outlineSwatch.addEventListener('click', () => {
+    openColorPicker(THEME.outline, (newHex) => {
+      THEME.outline = ensureNotBlack(newHex, '#2b2a55');
+      outlineSwatch.style.backgroundColor = THEME.outline;
+    });
+  });
+
+  function applyPreset(name){
+    const p=PRESETS[name];
+    THEME.bg=p.bg; THEME.zebra=p.zebra; THEME.outline=p.outline;
+    THEME.palette=p.palette.slice();
+    syncInputs();
+    applyBackground();
+    recolorAll();
+  }
+
+  const MONO_CHANCE=0.45;
+
+  function generateRainbowPalette(){
+    const baseHue=Math.random()*360;
+    const arr=[];
+    for(let i=0;i<8;i++){
+      const h=(baseHue + i*(360/8) + rnd(-18,18) + 360)%360;
+      const s=rnd(55,85)/100, l=rnd(45,65)/100;
+      arr.push(ensureNotBlack(rgbToHex(hsl(h,s,l)), PRESETS.colorful.palette[i]));
+    }
+    return arr;
+  }
+
+  function generateMonoPalette(hue){
+    const h=hue!==undefined?hue:Math.random()*360;
+    const arr=[];
+    for(let i=0;i<8;i++){
+      const hh=(h+rnd(-6,6)+360)%360;
+      const s=rnd(35,90)/100;
+      const l=rnd(28,78)/100;
+      arr.push(ensureNotBlack(rgbToHex(hsl(hh,s,l)), PRESETS.colorful.palette[i]));
+    }
+    return arr;
+  }
+
+  function randomizeShapes(){
+    THEME.palette = Math.random()<MONO_CHANCE ? generateMonoPalette() : generateRainbowPalette();
+    syncInputs();
+    recolorAll();
+  }
+
+  function randomizeAllColors(){
+    const dark=Math.random()<0.35;
+
+    if(Math.random()<MONO_CHANCE){
+      const hue=Math.random()*360;
+      THEME.bg=rgbToHex(hsl(hue, rnd(6,18)/100, (dark?rnd(12,20):rnd(90,97))/100));
+      THEME.zebra=ensureNotBlack(rgbToHex(hsl(hue, rnd(25,45)/100, (dark?rnd(55,70):rnd(35,55))/100)), '#2b2a55');
+      THEME.outline=ensureNotBlack(rgbToHex(hsl(hue, rnd(30,55)/100, (dark?rnd(82,95):rnd(20,38))/100)), dark?'#efe6fb':'#2b2a55');
+      THEME.palette=generateMonoPalette(hue);
+    } else {
+      const bgH=Math.random()*360;
+      THEME.bg=rgbToHex(hsl(bgH, rnd(8,28)/100, (dark?rnd(12,22):rnd(88,96))/100));
+      const zebraH=(bgH+rnd(-40,40)+360)%360;
+      THEME.zebra=ensureNotBlack(rgbToHex(hsl(zebraH, rnd(30,55)/100, (dark?rnd(55,72):rnd(35,55))/100)), '#2b2a55');
+      const outH=Math.random()*360;
+      THEME.outline=ensureNotBlack(rgbToHex(hsl(outH, rnd(35,60)/100, (dark?rnd(82,95):rnd(22,40))/100)), dark?'#efe6fb':'#2b2a55');
+      THEME.palette=generateRainbowPalette();
+    }
+
+    syncInputs();
+    applyBackground();
+    recolorAll();
+  }
+
+  document.getElementById('randShapesBtn').addEventListener('click',randomizeShapes);
+  document.getElementById('randAllBtn').addEventListener('click',randomizeAllColors);
+
+  document.querySelectorAll('.styleBtn').forEach(btn=>{
+    if(btn.dataset.style===shapeStyle) btn.classList.add('active');
+    btn.addEventListener('click',()=>{
+      shapeStyle=btn.dataset.style;
+      document.querySelectorAll('.styleBtn').forEach(b=>b.classList.toggle('active', b===btn));
+      reshapeAll();
+    });
+  });
+
+  // ---------- welcome overlay ----------
+  const welcomeOverlay=document.getElementById('welcomeOverlay');
+  const welcomeCloseBtn=document.getElementById('welcomeCloseBtn');
+  const dontShowAgain=document.getElementById('dontShowAgain');
+  const infoBtn=document.getElementById('infoBtn');
+  const WELCOME_KEY='imperfection_welcome_seen';
+
+  function openWelcome(){
+    updatePanelTheme();
+    welcomeOverlay.classList.remove('hidden');
+    welcomeOverlay.setAttribute('aria-hidden','false');
+  }
+  function closeWelcome(){
+    welcomeOverlay.classList.add('hidden');
+    welcomeOverlay.setAttribute('aria-hidden','true');
+    if(dontShowAgain.checked){
+      try{ localStorage.setItem(WELCOME_KEY,'1'); }catch(e){}
+    }
+  }
+
+  // Always show welcome modal on open
+  openWelcome();
+
+  welcomeCloseBtn.addEventListener('click',closeWelcome);
+  infoBtn.addEventListener('click',openWelcome);
+  welcomeOverlay.addEventListener('click',e=>{ if(e.target===welcomeOverlay) closeWelcome(); });
+
+  gearBtn.addEventListener('click',()=>{
+    const open=settingsPanel.classList.toggle('open');
+    settingsPanel.setAttribute('aria-hidden', open?'false':'true');
+  });
+  closeBtn.addEventListener('click',()=>{
+    settingsPanel.classList.remove('open');
+    settingsPanel.setAttribute('aria-hidden','true');
+  });
+  document.querySelectorAll('.presetBtn').forEach(btn=>{
+    btn.addEventListener('click',()=>applyPreset(btn.dataset.preset));
+  });
+
+  // Randomize preset on initial load
+  randomizeAllColors();
+  build(); frame();
+})();
+</script>
+</body>
+</html>
