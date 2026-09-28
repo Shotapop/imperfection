@@ -112,6 +112,32 @@
     background:#eee6fb;color:#2b2a55;
   }
   .presetBtn:hover{background:#e0d3fb}
+  .sectionLabel .subtle{font-weight:400;opacity:.7;font-size:11px}
+  .saveRow{display:flex;gap:6px;margin-bottom:8px}
+  #myPresetName{
+    flex:1;min-width:0;border:none;border-radius:10px;padding:8px 10px;
+    font-size:12px;font-family:inherit;background:var(--field-bg);color:var(--panel-text);outline:none;
+  }
+  #myPresetName:focus{box-shadow:0 0 0 2px #b7a4ee}
+  #myPresetSave{flex:0 0 auto;padding:8px 12px;font-size:12px}
+  .myPresetList{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+  .myPresetEmpty{font-size:11px;opacity:.6;padding:2px 2px 0}
+  .myPresetItem{display:flex;gap:6px;align-items:stretch}
+  .myPresetApply{
+    flex:1;min-width:0;border:none;border-radius:10px;padding:7px 10px;cursor:pointer;
+    background:var(--field-bg);color:var(--panel-text);font-family:inherit;
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    font-size:12px;font-weight:600;
+  }
+  .myPresetApply:hover{filter:brightness(.96)}
+  .myPresetName{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .myPresetDots{display:flex;flex-shrink:0}
+  .myPresetDots i{width:11px;height:11px;border-radius:50%;margin-left:-3px;box-shadow:0 0 0 1.5px var(--field-bg)}
+  .myPresetDel{
+    border:none;border-radius:10px;width:32px;cursor:pointer;
+    background:var(--field-bg);color:var(--panel-text);opacity:.75;font-size:13px;
+  }
+  .myPresetDel:hover{opacity:1;background:#ffd6dd;color:#a3243f}
   .fieldRow{
     display:flex;align-items:center;justify-content:space-between;
     font-size:13px;font-weight:500;margin-bottom:8px;
@@ -376,14 +402,57 @@
   #fx{position:fixed;inset:0;width:100%;height:100%;z-index:65;pointer-events:none;display:none}
   #gameBtn.on{background:linear-gradient(135deg,#ffb84d,#ff4d6d)}
   html,body{overscroll-behavior:none}
-  body.gamemode{cursor:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  body.gamemode{cursor:default;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  body.gamemode.shipHover{cursor:grab}
+  body.gamemode.shipHold{cursor:grabbing}
+  /* play screen shown when entering game mode */
+  #gameStart{
+    position:fixed;inset:0;z-index:20;pointer-events:none;
+    display:none;align-items:center;justify-content:center;
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  #gameStart.show{display:flex}
+  #gameStartInner{
+    display:flex;flex-direction:column;align-items:center;gap:14px;
+    margin-top:-8vh;text-align:center;pointer-events:none;
+    animation:gsIn .35s ease both;
+  }
+  @keyframes gsIn{from{opacity:0;transform:scale(.9) translateY(10px)}to{opacity:1;transform:none}}
+  #playBtn{
+    pointer-events:auto;cursor:pointer;
+    border:none;border-radius:999px;padding:16px 46px;
+    font-size:24px;font-weight:900;letter-spacing:.06em;color:#fff;
+    background:linear-gradient(135deg,#ff7ab2,#7a8cff);
+    box-shadow:0 10px 26px rgba(43,42,85,0.38);
+    transition:transform .12s ease,filter .12s ease;
+  }
+  #playBtn:hover{transform:scale(1.05);filter:brightness(1.08)}
+  #playBtn:active{transform:scale(.97)}
+  #gameStartHint{
+    font-size:13px;font-weight:700;color:var(--gs-text,#2b2a55);opacity:.8;
+    background:rgba(255,255,255,0.75);border-radius:999px;padding:6px 14px;
+  }
+  #gameStartBest{font-size:12px;font-weight:700;color:var(--gs-text,#2b2a55);opacity:.65}
+  .gsTouch{display:none}
+  @media (pointer:coarse){.gsTouch{display:inline}.gsMouse{display:none}}
   @keyframes zebraScroll{from{-webkit-mask-position:0 0;mask-position:0 0}to{-webkit-mask-position:0 126px;mask-position:0 126px}}
   body.gamemode .zebra::after{animation:zebraScroll 2.2s linear infinite}
+  body.gamemode.paused .zebra::after{animation-play-state:paused}
 </style>
 </head>
 <body>
   <div class="zebra"></div>
   <canvas id="web"></canvas>
+  <div id="gameStart" aria-hidden="true">
+    <div id="gameStartInner">
+      <button id="playBtn" type="button">▶ PLAY</button>
+      <div id="gameStartHint">
+        <span class="gsMouse">grab the ship &amp; drag to fly · or arrow keys / WASD · auto-fire</span>
+        <span class="gsTouch">drag anywhere to fly · auto-fire</span>
+      </div>
+      <div id="gameStartBest"></div>
+    </div>
+  </div>
   <canvas id="fx"></canvas>
 
   <div id="uiRoot">
@@ -401,8 +470,15 @@
       <div class="presetRow">
         <button class="presetBtn" data-preset="colorful">Colorful</button>
         <button class="presetBtn" data-preset="pastel">Pastel</button>
-        <button class="presetBtn" data-preset="dark">Dark-ish</button>
+        <button class="presetBtn" data-preset="dark">Dark</button>
       </div>
+
+      <div class="sectionLabel">My presets <span class="subtle"></span></div>
+      <div class="saveRow">
+        <input type="text" id="myPresetName" maxlength="24" placeholder="Name this look..." autocomplete="off" spellcheck="false">
+        <button id="myPresetSave" class="randBtn" title="Save the current colors as a preset">💾 Save</button>
+      </div>
+      <div id="myPresetList" class="myPresetList"></div>
 
       <div class="sectionLabel">Shape style</div>
       <div class="styleRow" id="styleRow">
@@ -424,7 +500,7 @@
       <div class="paletteLabel">Shape colors</div>
       <div id="paletteRow" class="paletteRow"></div>
 
-      <div class="hint">Pick a preset or set your own colors. Pure black is never used — it'll be nudged into a nearby shade.</div>
+      <div class="hint">Pick a preset or set your own colors. Except black.</div>
     </div>
   </div>
 
@@ -481,7 +557,7 @@
   <div id="welcomeOverlay" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
     <div id="welcomeCard">
       <h2 id="welcomeTitle">welcome to imperfection.</h2>
-      <p>This little corner of the screen isn't for anything in particular — no goals, no scores, nothing to get "right." It's just a soft, colorful world of shapes that react to you, built for letting off steam, relaxing for a minute, or just having a bit of fun with color and motion.</p>
+      <p>This little corner of the screen isn't for anything in particular — there's nothing to get "right." It's just a soft, colorful world of shapes that react to you, built for letting off steam, relaxing for a minute, or just having a bit of fun with color and motion.</p>
 
       <h3>How it works</h3>
       <ul>
@@ -492,11 +568,11 @@
 
       <h3>The settings (⚙️ top right)</h3>
       <ul>
-        <li><strong>Game mode (🚀)</strong> — the shapes turn into invaders and you fly the ship (mouse, finger, or arrow keys / WASD; it fires automatically). Every 5 waves the invaders level up — bigger, tougher, faster, more bullets — and it never ends. Your preset and shape style carry over and are remembered next time. Press Esc or 🏠 to return.</li>
+        <li><strong>Game mode (🚀)</strong> — the shapes turn into invaders and press <em>Play</em>, then fly the ship (with a mouse: grab the ship and hold while you drag; with a finger: drag anywhere; or arrow keys / WASD — it fires automatically). Your preset and shape style carry over and are remembered next time. Press Esc or 🏠 to return.</li>
         <li><strong>Sound toggle (🔊)</strong> — mute or unmute audio feedback anytime.</li>
-        <li><strong>Presets</strong> — swap the whole mood in one tap: Colorful, Pastel, or Dark-ish.</li>
-        <li><strong>Shape style</strong> — switch shapes & audio between bouncy <i>Geometric</i> (funky synth boops), soft <i>Floral</i> (grounded wooden marimba & chimes), or dreamy <i>Sky</i> (ethereal shimmers & cosmic sweeps).</li>
-        <li><strong>Randomize</strong> — "Randomize all" reshuffles everything; "Shapes only" keeps your background as is and just remixes the shapes. Each roll picks one of five moods: rainbow, monochrome, pastel, vivid mix, or a two-color gradient.</li>
+        <li><strong>Presets</strong> — swap the whole mood in one tap: Colorful, Pastel, or Dark. Found colors you love (or picked your own)? Name the look and hit <em>Save</em> to keep it under <em>My presets</em>; tap one to bring it back, ✕ to delete it.</li>
+        <li><strong>Shape style</strong> — switch shapes & audio between bouncy <i>Geometric</i>, soft <i>Floral</i>, or dreamy <i>Sky</i>.</li>
+        <li><strong>Randomize</strong> — "Randomize all" reshuffles everything; "Shapes only" keeps your background as is and just remixes the shapes.</li>
         <li><strong>Background / Pattern / Outline</strong> — pick your own colors by hand for the canvas, the wavy pattern, and the shape outlines.</li>
         <li><strong>Shape colors</strong> — the palette your floating shapes are drawn from.</li>
       </ul>
@@ -1607,7 +1683,8 @@
   // ================= GAME MODE: space shooter =================
   const game={on:false,aliens:[],bullets:[],ebullets:[],keys:{},tx:0,ty:0,ship:{x:0,y:0,inv:0},
     score:0,lives:3,wave:0,best:0,over:false,overT:0,cd:0,fireCd:60,diveCd:150,waveDelay:30,
-    banner:null,shake:0,fy:0,shots:0,ax:60,sp:60,cols:5};
+    banner:null,shake:0,fy:0,shots:0,ax:60,sp:60,cols:5,started:false,grab:null,
+    ptype:(matchMedia('(pointer:coarse)').matches?'touch':'mouse')};
   try{ game.best=+localStorage.getItem(BEST_KEY)||0; }catch(e){}
   const gameBtn=document.getElementById('gameBtn');
   const palRGB=()=>THEME.palette.map(hexToRgbArr);
@@ -1688,7 +1765,7 @@
     g.shake=Math.max(g.shake,3);
   }
   function hurt(){
-    const g=game, s=g.ship, col=hexToRgbArr(THEME.palette[5]);
+    const g=game, s=g.ship, col=shipColors().body;
     g.lives--; s.inv=phone()?150:130; g.shake=16;
     spawnParticles(s.x,s.y,col,26); ripple(s.x,s.y,12);
     SoundEngine.playShockwaveSound(shapeStyle);
@@ -1698,12 +1775,21 @@
     }
   }
 
+  // Paused while settings / info / the color picker are open, so you can tweak colors (or close a
+  // panel you opened by accident) without losing progress. Colors still update live on the frozen scene.
+  function isPaused(){
+    return game.on&&game.started&&(settingsPanel.classList.contains('open')||
+      !welcomeOverlay.classList.contains('hidden')||!colorPickerOverlay.classList.contains('hidden'));
+  }
   function gameStep(){
     const g=game, s=g.ship, k=g.keys, spd=10;
+    const pz=isPaused(); g.paused=pz; document.body.classList.toggle('paused',pz);
+    if(pz){ g.keys={}; g.grab=null; document.body.classList.remove('shipHold','shipHover'); return; }
     if(k.arrowleft||k.a) g.tx-=spd; if(k.arrowright||k.d) g.tx+=spd;
     if(k.arrowup||k.w) g.ty-=spd; if(k.arrowdown||k.s) g.ty+=spd;
     g.tx=Math.max(24,Math.min(W-24,g.tx)); g.ty=Math.max(H*(phone()?0.5:0.45),Math.min(H-(phone()?70:50),g.ty));
     const lp=phone()?0.4:0.28; s.x+=(g.tx-s.x)*lp; s.y+=(g.ty-s.y)*lp;
+    if(!g.started) return;              // waiting on the Play screen: ship idles, nothing spawns or fires
     if(s.inv>0) s.inv--;
     g.shake*=0.88;
     canvas.style.transform=g.shake>0.6?`translate(${rnd(-g.shake,g.shake)}px,${rnd(-g.shake,g.shake)}px)`:'';
@@ -1771,15 +1857,57 @@
     g.aliens=g.aliens.filter(a=>a.hp>0);
   }
 
+  // Ship color: the hue sitting farthest from every hue in the current palette (for a one-hue
+  // theme that's simply the opposite side of the wheel), with lightness chosen to pop off the background.
+  let shipKey='', shipCols=null;
+  function shipColors(){
+    const key=THEME.palette.join()+THEME.bg+THEME.zebra;
+    if(key===shipKey&&shipCols) return shipCols;
+    const toHSL=hex=>{
+      const [r,g,b]=hexToRgbArr(hex).map(v=>v/255), mx=Math.max(r,g,b), mn=Math.min(r,g,b), d=mx-mn, l=(mx+mn)/2;
+      let h=0; if(d>0){ h=mx===r?((g-b)/d)%6:mx===g?(b-r)/d+2:(r-g)/d+4; h*=60; if(h<0)h+=360; }
+      return {h,s:d===0?0:d/(1-Math.abs(2*l-1)),l};
+    };
+    const hues=THEME.palette.map(toHSL).filter(c=>c.s>0.12).map(c=>c.h);
+    const bgc=toHSL(THEME.bg), dark=bgc.l<0.5;
+    let best=0, gap=180;
+    if(hues.length){
+      gap=-1;
+      for(let h=0;h<360;h+=3){
+        let md=180; for(const x of hues){ const dd=Math.abs(h-x), cd=Math.min(dd,360-dd); if(cd<md) md=cd; }
+        if(md>gap){ gap=md; best=h; }
+      }
+    } else {                                   // grayscale palette: oppose the zebra tint instead
+      best=(toHSL(THEME.zebra).h+180)%360;
+    }
+    let bodyC, flameC;
+    if(gap<45){
+      // Rainbow-like palette: every hue is taken, so hue alone can't separate the ship from the shapes/background.
+      // Push hard on lightness instead (deep + fully saturated on light bgs, glowing-bright on dark ones),
+      // and take the hue opposite the background tint when it has one.
+      const h=bgc.s>0.06?(bgc.h+180)%360:best;
+      bodyC=hsl(h,1,dark?0.74:0.34);
+      flameC=hsl(h,1,dark?0.92:0.6);
+      best=h;
+    } else {
+      bodyC=hsl(best,0.92,dark?0.66:0.46);
+      flameC=hsl(best,0.97,dark?0.82:0.66);
+    }
+    shipCols={body:bodyC,flame:flameC,hue:best};
+    shipKey=key; return shipCols;
+  }
+
   function drawShip(x,y,sc,pal,flame){
+    const sc2=shipColors();
     ctx.save(); ctx.translate(x,y); ctx.scale(sc,sc);
     if(flame){
       const f=14+Math.sin(t*0.06)*6;
       ctx.beginPath(); ctx.moveTo(-7,16); ctx.lineTo(0,26+f); ctx.lineTo(7,16); ctx.closePath();
-      ctx.fillStyle=rgb(pal[2]); ctx.fill(); ctx.lineWidth=3.5*OL; ctx.strokeStyle=THEME.outline; ctx.stroke();
+      ctx.fillStyle=rgb(sc2.flame); ctx.fill(); ctx.lineWidth=3.5*OL; ctx.strokeStyle=THEME.outline; ctx.stroke();
     }
     ctx.beginPath(); ctx.moveTo(0,-26); ctx.lineTo(20,18); ctx.lineTo(9,12); ctx.lineTo(0,20); ctx.lineTo(-9,12); ctx.lineTo(-20,18); ctx.closePath();
-    ctx.fillStyle=rgb(pal[5]); ctx.fill(); ctx.lineWidth=4*OL; ctx.strokeStyle=THEME.outline; ctx.stroke();
+    ctx.lineJoin='round'; ctx.lineWidth=4*OL+9; ctx.strokeStyle=THEME.bg; ctx.stroke();   // halo keeps it readable over any shape
+    ctx.fillStyle=rgb(sc2.body); ctx.fill(); ctx.lineWidth=4*OL; ctx.strokeStyle=THEME.outline; ctx.stroke();
     ctx.beginPath(); ctx.arc(0,-2,6,0,Math.PI*2); ctx.fillStyle=THEME.bg; ctx.fill(); ctx.lineWidth=3*OL; ctx.stroke();
     ctx.restore();
   }
@@ -1818,6 +1946,13 @@
       ctx.restore();
     }
     if(!g.over&&!(s.inv>0&&((s.inv/5)|0)%2)) drawShip(s.x,s.y,phone()?1.2:1,pal,true);
+    if(g.ptype!=='touch'&&!g.over){       // cursor play: show the ship is something you grab
+      const held=!!g.grab;
+      ctx.save(); ctx.globalAlpha=held?0.95:0.4+Math.sin(t*0.006)*0.2;
+      ctx.setLineDash(held?[]:[7,7]); ctx.lineWidth=3; ctx.strokeStyle=held?rgb(shipColors().body):THEME.outline;
+      ctx.beginPath(); ctx.arc(s.x,s.y,GRAB_R*0.62,0,Math.PI*2); ctx.stroke(); ctx.restore();
+    }
+    if(!g.started) return;
 
     const txt=(str,x,y)=>{ ctx.strokeText(str,x,y); ctx.fillText(str,x,y); };
     ctx.strokeStyle=THEME.outline; ctx.fillStyle=THEME.bg; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
@@ -1836,7 +1971,7 @@
     }
     if(g.hint>0&&!g.over){
       ctx.globalAlpha=Math.min(1,g.hint/40); ctx.font=`800 16px ${FONT}`; ctx.lineWidth=5;
-      txt(phone()?'drag anywhere to fly · auto-fire':'move to fly · auto-fire',W/2,H*0.4+44); ctx.globalAlpha=1;
+      txt(g.ptype==='touch'?'drag anywhere to fly · auto-fire':'grab the ship & drag · auto-fire',W/2,H*0.4+44); ctx.globalAlpha=1;
     }
     if(g.over){
       ctx.globalAlpha=0.55; ctx.fillStyle=THEME.bg; ctx.fillRect(0,0,W,H); ctx.globalAlpha=1; ctx.fillStyle=THEME.bg;
@@ -1847,6 +1982,11 @@
         ctx.globalAlpha=0.6+Math.sin(t*0.006)*0.4;
         ctx.font=`800 ${fs*0.26}px ${FONT}`; txt(phone()?'tap to fly again':'tap or press space to fly again',W/2,H*0.42+fs*1.3); ctx.globalAlpha=1;
       }
+    }
+    if(g.paused&&!g.over){
+      const fs=Math.min(W*0.12,72); ctx.fillStyle=THEME.bg; ctx.strokeStyle=THEME.outline;
+      ctx.font=`900 ${fs}px ${FONT}`; ctx.lineWidth=fs*0.18; txt('PAUSED',W/2,H*0.42);
+      ctx.font=`800 ${Math.max(13,fs*0.24)}px ${FONT}`; ctx.lineWidth=5; txt('close settings to resume',W/2,H*0.42+fs*0.6);
     }
     ctx.textAlign='left';
   }
@@ -1859,14 +1999,15 @@
       for(const d of activeDrags.values()) d.shape.dragging=false;
       activeDrags.clear(); document.body.style.cursor='';
       runTransition('GAME MODE',shapeStyle+' invaders',()=>{
-        resetGame(); game.on=true; mouse.active=false;
+        resetGame(); game.on=true; mouse.active=false; showPlayScreen();
         if(phone()){ settingsPanel.classList.remove('open'); settingsPanel.setAttribute('aria-hidden','true'); }
         document.body.classList.add('gamemode'); gameBtn.classList.add('on');
         gameBtn.textContent='🏠'; gameBtn.title='Back to chill mode';
       });
     } else {
       runTransition('CHILL MODE','breathe out',()=>{
-        game.on=false; canvas.style.transform=''; particles=[]; game.keys={};
+        game.on=false; canvas.style.transform=''; particles=[]; game.keys={}; hidePlayScreen(); game.grab=null; game.paused=false;
+        document.body.classList.remove('shipHover','shipHold','paused');
         document.body.classList.remove('gamemode'); gameBtn.classList.remove('on');
         gameBtn.textContent='🚀'; gameBtn.title='Game mode';
       });
@@ -1874,29 +2015,79 @@
   }
   gameBtn.addEventListener('click',()=>{ gameBtn.blur(); toggleGame(); });
 
+  // ---- play screen ----
+  const gameStartEl=document.getElementById('gameStart'), playBtn=document.getElementById('playBtn'),
+        gameStartBest=document.getElementById('gameStartBest');
+  function showPlayScreen(){
+    game.started=false;
+    gameStartBest.textContent=game.best?('best '+game.best):'';
+    gameStartEl.classList.remove('show'); void gameStartEl.offsetWidth;   // restart the pop-in animation
+    gameStartEl.classList.add('show'); gameStartEl.setAttribute('aria-hidden','false');
+  }
+  function hidePlayScreen(){ gameStartEl.classList.remove('show'); gameStartEl.setAttribute('aria-hidden','true'); }
+  function startPlaying(){
+    if(!game.on||game.started||trans.on) return;
+    game.started=true; game.hint=260; game.ship.inv=90; game.waveDelay=30;
+    hidePlayScreen();
+  }
+  playBtn.addEventListener('click',()=>{ playBtn.blur(); startPlaying(); });
+
   // ---- game input ----
-  const inUI=e=>e.target.closest&&(e.target.closest('#uiRoot')||e.target.closest('#welcomeOverlay')||e.target.closest('#colorPickerOverlay'));
-  const SENS=1.4;
+  const inUI=e=>e.target.closest&&(e.target.closest('#uiRoot')||e.target.closest('#welcomeOverlay')||e.target.closest('#colorPickerOverlay')||e.target.closest('#gameStart'));
+  const SENS=1.4;                                // touch: relative drag anywhere
+  const GRAB_R=64;                               // mouse/pen: how close to the ship you must press to grab it
+  const cursorClass=()=>{
+    const b=document.body.classList;
+    b.toggle('shipHold',game.on&&!!game.grab&&game.ptype!=='touch');
+  };
   window.addEventListener('pointermove',e=>{
+    game.ptype=e.pointerType||game.ptype;
     if(!game.on) return;
+    const gr=game.grab;
     if(e.pointerType==='touch'){
-      const gr=game.grab;
       if(gr){ game.tx=gr.sx+(e.clientX-gr.px)*SENS; game.ty=gr.sy+(e.clientY-gr.py)*SENS; }
-    } else if(!inUI(e)){ game.tx=e.clientX; game.ty=e.clientY; }
+      return;
+    }
+    // mouse / pen: only moves the ship while you're holding it
+    if(gr){
+      if(e.buttons===0){ game.grab=null; cursorClass(); }       // release happened outside the window
+      else { game.tx=e.clientX+gr.ox; game.ty=e.clientY+gr.oy; }
+    }
+    // hover feedback: open hand over the ship
+    const s=game.ship, near=game.started&&!game.over&&!inUI(e)&&Math.hypot(e.clientX-s.x,e.clientY-s.y)<=GRAB_R;
+    document.body.classList.toggle('shipHover',near&&!gr);
   });
   window.addEventListener('pointerdown',e=>{
-    if(!game.on||inUI(e)) return;
+    game.ptype=e.pointerType||game.ptype;
+    if(!game.on||inUI(e)||!game.started||game.paused) return;
     if(game.over&&game.overT>40) resetGame();
     if(e.pointerType==='touch') game.grab={px:e.clientX,py:e.clientY,sx:game.tx,sy:game.ty};
-    else { game.tx=e.clientX; game.ty=e.clientY; }
+    else if(e.button===0){
+      const s=game.ship;
+      if(!game.over&&Math.hypot(e.clientX-s.x,e.clientY-s.y)<=GRAB_R){
+        game.grab={ox:s.x-e.clientX,oy:s.y-e.clientY};          // keep the offset so the ship doesn't jump to the cursor
+        game.tx=s.x; game.ty=s.y;
+        document.body.classList.remove('shipHover'); cursorClass();
+        if(e.target&&e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
+      }
+    }
   });
-  const endGrab=e=>{ if(e.pointerType==='touch') game.grab=null; };
+  const endGrab=e=>{ if(game.grab){ game.grab=null; cursorClass(); } };
   window.addEventListener('pointerup',endGrab);
   window.addEventListener('pointercancel',endGrab);
+  window.addEventListener('blur',endGrab);
   window.addEventListener('keydown',e=>{
-    if(e.key==='Escape'&&game.on){ toggleGame(); return; }
-    if(!game.on) return;
-    const k=e.key.toLowerCase(); game.keys[k]=true;
+    if(e.key==='Escape'&&game.on){
+      // close whatever is open first (resumes the game); only leave game mode when nothing is
+      if(!colorPickerOverlay.classList.contains('hidden')){ closeColorPicker(); return; }
+      if(!welcomeOverlay.classList.contains('hidden')){ closeWelcome(); return; }
+      if(settingsPanel.classList.contains('open')){ settingsPanel.classList.remove('open'); settingsPanel.setAttribute('aria-hidden','true'); return; }
+      toggleGame(); return;
+    }
+    if(!game.on||game.paused) return;
+    const k=e.key.toLowerCase();
+    if(!game.started){ if(k===' '||k==='enter'){ e.preventDefault(); startPlaying(); } return; }
+    game.keys[k]=true;
     if((k===' '||k==='enter')&&game.over&&game.overT>40) resetGame();
     if(k.startsWith('arrow')||k===' ') e.preventDefault();
   });
@@ -2291,6 +2482,104 @@
     applyBackground();
     recolorAll();
   }
+
+  // ---------- MY PRESETS (user-saved color looks) ----------
+  const MY_PRESETS_KEY='imperfection_my_presets';
+  const MAX_MY_PRESETS=24;
+  const HEX_OK=h=>typeof h==='string'&&/^#[0-9a-f]{6}$/i.test(h);
+  const myPresetName=document.getElementById('myPresetName');
+  const myPresetSave=document.getElementById('myPresetSave');
+  const myPresetList=document.getElementById('myPresetList');
+
+  function loadMyPresets(){
+    try{
+      const arr=JSON.parse(localStorage.getItem(MY_PRESETS_KEY)||'[]');
+      if(!Array.isArray(arr)) return [];
+      return arr.filter(p=>p&&typeof p.name==='string'&&HEX_OK(p.bg)&&HEX_OK(p.zebra)&&HEX_OK(p.outline)&&Array.isArray(p.palette)&&p.palette.length===8&&p.palette.every(HEX_OK));
+    }catch(e){ return []; }
+  }
+  function storeMyPresets(arr){
+    try{ localStorage.setItem(MY_PRESETS_KEY,JSON.stringify(arr)); return true; }catch(e){ return false; }
+  }
+
+  function renderMyPresets(){
+    const arr=loadMyPresets();
+    myPresetList.innerHTML='';
+    if(!arr.length){
+      const e=document.createElement('div');
+      e.className='myPresetEmpty';
+      e.textContent='Nothing saved yet!';
+      myPresetList.appendChild(e);
+      return;
+    }
+    arr.forEach((p,i)=>{
+      const row=document.createElement('div'); row.className='myPresetItem';
+
+      const apply=document.createElement('button');
+      apply.type='button'; apply.className='myPresetApply'; apply.title='Apply "'+p.name+'"';
+      const nm=document.createElement('span'); nm.className='myPresetName'; nm.textContent=p.name;
+      const dots=document.createElement('span'); dots.className='myPresetDots';
+      [p.bg,p.palette[0],p.palette[2],p.palette[5],p.palette[7]].forEach(c=>{
+        const d=document.createElement('i'); d.style.background=c; dots.appendChild(d);
+      });
+      apply.appendChild(nm); apply.appendChild(dots);
+      apply.addEventListener('click',()=>applyMyPreset(p));
+
+      const del=document.createElement('button');
+      del.type='button'; del.className='myPresetDel'; del.textContent='✕';
+      del.setAttribute('aria-label','Delete preset '+p.name); del.title='Delete';
+      del.addEventListener('click',()=>{
+        const cur=loadMyPresets(); cur.splice(i,1); storeMyPresets(cur); renderMyPresets();
+      });
+
+      row.appendChild(apply); row.appendChild(del);
+      myPresetList.appendChild(row);
+    });
+  }
+
+  function applyMyPreset(p){
+    THEME.bg=p.bg; THEME.zebra=p.zebra; THEME.outline=p.outline;
+    THEME.palette=p.palette.slice();
+    saveCfg();
+    syncInputs();
+    applyBackground();
+    recolorAll();
+  }
+
+  function saveCurrentAsPreset(){
+    const arr=loadMyPresets();
+    let name=myPresetName.value.trim().slice(0,24);
+    if(!name){
+      let n=arr.length+1;
+      while(arr.some(p=>p.name.toLowerCase()==='look '+n)) n++;
+      name='Look '+n;
+    }
+    const entry={name,bg:THEME.bg,zebra:THEME.zebra,outline:THEME.outline,palette:THEME.palette.slice()};
+    const existing=arr.findIndex(p=>p.name.toLowerCase()===name.toLowerCase());
+    if(existing>=0) arr[existing]=entry;               // same name = update it
+    else{
+      if(arr.length>=MAX_MY_PRESETS){
+        myPresetName.value=''; myPresetName.placeholder='Full — delete one first';
+        return;
+      }
+      arr.push(entry);
+    }
+    if(!storeMyPresets(arr)){
+      myPresetName.value=''; myPresetName.placeholder="Couldn't save (storage blocked)";
+      return;
+    }
+    myPresetName.value=''; myPresetName.placeholder='Saved ✓ Name another...';
+    setTimeout(()=>{ myPresetName.placeholder='Name this look...'; },1800);
+    saveCfg();
+    renderMyPresets();
+  }
+
+  myPresetSave.addEventListener('click',saveCurrentAsPreset);
+  myPresetName.addEventListener('keydown',e=>{
+    e.stopPropagation();
+    if(e.key==='Enter'){ e.preventDefault(); saveCurrentAsPreset(); }
+  });
+  renderMyPresets();
 
   // ---------- palette styles ----------
   // 5 distinct shape-color styles instead of just monochrome/rainbow.
