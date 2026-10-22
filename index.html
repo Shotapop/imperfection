@@ -438,6 +438,84 @@
   @keyframes zebraScroll{from{-webkit-mask-position:0 0;mask-position:0 0}to{-webkit-mask-position:0 126px;mask-position:0 126px}}
   body.gamemode .zebra::after{animation:zebraScroll 2.2s linear infinite}
   body.gamemode.paused .zebra::after{animation-play-state:paused}
+
+  /* ---------- polished buttons + icons ---------- */
+  :root{--ui-ink:#2b2a55;--shine:linear-gradient(165deg,rgba(255,255,255,.7) 0,rgba(255,255,255,.12) 46%,rgba(255,255,255,0) 47%)}
+  .ic{display:inline-flex;align-items:center;vertical-align:middle}
+  .ic svg{width:1.2em;height:1.2em;display:block}
+  #uiRoot>button{padding:0}
+  #uiRoot>button svg{width:22px;height:22px;display:block}
+  #closeBtn svg,.cpCloseBtn svg{width:18px;height:18px;display:block}
+
+  #gearBtn,#infoBtn,#audioBtn,#gameBtn{
+    border:2.5px solid var(--ui-ink);color:#2b2a55;font-size:0;
+    background:var(--shine),var(--bc,#ff8fb8);
+    box-shadow:0 4px 0 var(--ui-ink),0 10px 16px rgba(43,42,85,.22);
+    transition:transform .12s ease,box-shadow .12s ease;
+  }
+  #gearBtn{--bc:#c3b2ff}#infoBtn{--bc:#8fdcff}#audioBtn{--bc:#9bf0c4}#gameBtn{--bc:#ffd166}
+  #gameBtn.on{--bc:#ff8fb8;background:var(--shine),#ff8fb8}
+  #gearBtn:hover,#infoBtn:hover,#audioBtn:hover,#gameBtn:hover{
+    filter:none;transform:translateY(-2px);
+    box-shadow:0 6px 0 var(--ui-ink),0 14px 20px rgba(43,42,85,.22);
+  }
+  #gearBtn:active,#infoBtn:active,#audioBtn:active,#gameBtn:active{
+    transform:translateY(3px);box-shadow:0 1px 0 var(--ui-ink),0 4px 8px rgba(43,42,85,.2);
+  }
+
+  .randBtn,#playBtn,#welcomeCloseBtn,.cpBtnApply,
+  #settingsPanel .styleBtn.active,#settingsPanel.dark .styleBtn.active{
+    background:var(--shine),var(--bc,#ff8fb8);color:#2b2a55;
+    border:2px solid var(--ui-ink);box-shadow:0 3px 0 var(--ui-ink);
+    transition:transform .12s ease,box-shadow .12s ease;
+  }
+  #randShapesBtn{--bc:#8fdcff}#myPresetSave{--bc:#9bf0c4}#playBtn{--bc:#ffd166}
+  .randBtn{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+  #playBtn{
+    display:inline-flex;align-items:center;gap:10px;font-size:22px;
+    box-shadow:0 5px 0 var(--ui-ink),0 14px 24px rgba(43,42,85,.3);
+  }
+  #welcomeCloseBtn{box-shadow:0 4px 0 var(--ui-ink),0 10px 18px rgba(43,42,85,.2)}
+  .randBtn:hover,#playBtn:hover,#welcomeCloseBtn:hover,.cpBtnApply:hover{
+    filter:none;transform:translateY(-2px);box-shadow:0 5px 0 var(--ui-ink);
+  }
+  #playBtn:hover{box-shadow:0 7px 0 var(--ui-ink),0 16px 24px rgba(43,42,85,.3)}
+  .randBtn:active,#playBtn:active,#welcomeCloseBtn:active,.cpBtnApply:active{
+    transform:translateY(2px);box-shadow:0 1px 0 var(--ui-ink);
+  }
+
+  #settingsPanel .presetBtn,#settingsPanel .styleBtn:not(.active){
+    background:var(--field-bg);color:var(--panel-text);
+    border:2px solid var(--ui-ink);box-shadow:0 3px 0 var(--ui-ink);
+    transition:transform .12s ease,box-shadow .12s ease;
+  }
+  #settingsPanel .presetBtn:hover,#settingsPanel .styleBtn:not(.active):hover{
+    background:var(--field-bg);filter:brightness(.96);transform:translateY(-1px);box-shadow:0 4px 0 var(--ui-ink);
+  }
+  #settingsPanel .presetBtn:active,#settingsPanel .styleBtn:not(.active):active{
+    transform:translateY(2px);box-shadow:0 1px 0 var(--ui-ink);
+  }
+  #colorPickerCard .cpBtnCancel{
+    border:2px solid var(--ui-ink);box-shadow:0 3px 0 var(--ui-ink);
+    transition:transform .12s ease,box-shadow .12s ease;
+  }
+  #colorPickerCard .cpBtnCancel:hover{transform:translateY(-2px);box-shadow:0 5px 0 var(--ui-ink)}
+  #colorPickerCard .cpBtnCancel:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ui-ink)}
+  .myPresetApply,.myPresetDel{border:2px solid var(--ui-ink)}
+  .myPresetDel svg{width:14px;height:14px;display:block;margin:auto}
+  .swatchBtn{border:2px solid var(--ui-ink);box-shadow:0 2px 0 var(--ui-ink)}
+  .swatchBtn:hover{box-shadow:0 3px 0 var(--ui-ink)}
+
+  .langSwitch{
+    display:inline-flex;align-items:center;gap:3px;padding:3px;margin-bottom:12px;
+    border-radius:999px;border:2px solid var(--ui-ink);background:rgba(122,140,255,.14);
+  }
+  .langSwitch .ic{margin:0 4px 0 8px;opacity:.75}
+  .langBtn{
+    border:none;border-radius:999px;padding:6px 14px;font-size:12px;font-weight:800;
+    cursor:pointer;background:transparent;color:inherit;font-family:inherit;
+  }
+  .langBtn.active{background:var(--shine),#ff8fb8;color:#2b2a55;box-shadow:0 2px 0 var(--ui-ink)}
 </style>
 </head>
 <body>
@@ -445,10 +523,10 @@
   <canvas id="web"></canvas>
   <div id="gameStart" aria-hidden="true">
     <div id="gameStartInner">
-      <button id="playBtn" type="button">▶ PLAY</button>
+      <button id="playBtn" type="button"><span class="ic" data-icon="play"></span><span data-i18n="play"></span></button>
       <div id="gameStartHint">
-        <span class="gsMouse">grab the ship &amp; drag to fly · or arrow keys / WASD · auto-fire</span>
-        <span class="gsTouch">drag anywhere to fly · auto-fire</span>
+        <span class="gsMouse" data-i18n="hintMouse"></span>
+        <span class="gsTouch" data-i18n="hintTouch"></span>
       </div>
       <div id="gameStartBest"></div>
     </div>
@@ -456,51 +534,51 @@
   <canvas id="fx"></canvas>
 
   <div id="uiRoot">
-    <button id="gameBtn" aria-label="Toggle game mode" title="Game mode">🚀</button>
-    <button id="audioBtn" aria-label="Toggle sound" title="Sound On/Off">🔊</button>
-    <button id="infoBtn" aria-label="How this works" title="How this works">?</button>
-    <button id="gearBtn" aria-label="Open settings" title="Settings">⚙️</button>
+    <button id="gameBtn" data-icon="rocket" data-i18n-aria="gameAria" data-i18n-title="gameTitle"></button>
+    <button id="audioBtn" data-icon="soundOn" data-i18n-aria="soundAria" data-i18n-title="soundOn"></button>
+    <button id="infoBtn" data-icon="info" data-i18n-aria="infoTitle" data-i18n-title="infoTitle"></button>
+    <button id="gearBtn" data-icon="gear" data-i18n-aria="gearAria" data-i18n-title="gearTitle"></button>
     <div id="settingsPanel" aria-hidden="true">
       <div class="panelHead">
-        <span>Settings</span>
-        <button id="closeBtn" aria-label="Close settings">✕</button>
+        <span data-i18n="settings"></span>
+        <button id="closeBtn" data-icon="x" data-i18n-aria="closeSettings"></button>
       </div>
 
-      <div class="sectionLabel">Presets</div>
+      <div class="sectionLabel" data-i18n="presets"></div>
       <div class="presetRow">
-        <button class="presetBtn" data-preset="colorful">Colorful</button>
-        <button class="presetBtn" data-preset="pastel">Pastel</button>
-        <button class="presetBtn" data-preset="dark">Dark</button>
+        <button class="presetBtn" data-preset="colorful" data-i18n="pColorful"></button>
+        <button class="presetBtn" data-preset="pastel" data-i18n="pPastel"></button>
+        <button class="presetBtn" data-preset="dark" data-i18n="pDark"></button>
       </div>
 
-      <div class="sectionLabel">My presets <span class="subtle"></span></div>
+      <div class="sectionLabel" data-i18n="myPresets"></div>
       <div class="saveRow">
-        <input type="text" id="myPresetName" maxlength="24" placeholder="Name this look..." autocomplete="off" spellcheck="false">
-        <button id="myPresetSave" class="randBtn" title="Save the current colors as a preset">💾 Save</button>
+        <input type="text" id="myPresetName" maxlength="24" data-i18n-ph="namePh" autocomplete="off" spellcheck="false">
+        <button id="myPresetSave" class="randBtn" data-i18n-title="saveTitle"><span class="ic" data-icon="save"></span><span data-i18n="save"></span></button>
       </div>
       <div id="myPresetList" class="myPresetList"></div>
 
-      <div class="sectionLabel">Shape style</div>
+      <div class="sectionLabel" data-i18n="shapeStyle"></div>
       <div class="styleRow" id="styleRow">
-        <button class="styleBtn" data-style="geometric">Geometric</button>
-        <button class="styleBtn" data-style="floral">Floral</button>
-        <button class="styleBtn" data-style="sky">Sky</button>
+        <button class="styleBtn" data-style="geometric" data-i18n="sGeo"></button>
+        <button class="styleBtn" data-style="floral" data-i18n="sFloral"></button>
+        <button class="styleBtn" data-style="sky" data-i18n="sSky"></button>
       </div>
 
-      <div class="sectionLabel">Randomize</div>
+      <div class="sectionLabel" data-i18n="randomize"></div>
       <div class="randomRow">
-        <button id="randAllBtn" class="randBtn" title="Randomize background, pattern, outline and shape colors">🎲 Randomize all</button>
-        <button id="randShapesBtn" class="randBtn" title="Randomize only the shape colors">🔷 Shapes only</button>
+        <button id="randAllBtn" class="randBtn" data-i18n-title="randAllTitle"><span class="ic" data-icon="dice"></span><span data-i18n="randAll"></span></button>
+        <button id="randShapesBtn" class="randBtn" data-i18n-title="randShapesTitle"><span class="ic" data-icon="shapes"></span><span data-i18n="randShapes"></span></button>
       </div>
 
-      <label class="fieldRow">Background <button type="button" class="swatchBtn" id="bgSwatch" aria-label="Choose background color"></button></label>
-      <label class="fieldRow">Pattern <button type="button" class="swatchBtn" id="zebraSwatch" aria-label="Choose pattern color"></button></label>
-      <label class="fieldRow">Outline <button type="button" class="swatchBtn" id="outlineSwatch" aria-label="Choose outline color"></button></label>
+      <label class="fieldRow"><span data-i18n="background"></span> <button type="button" class="swatchBtn" id="bgSwatch" data-i18n-aria="chooseBg"></button></label>
+      <label class="fieldRow"><span data-i18n="pattern"></span> <button type="button" class="swatchBtn" id="zebraSwatch" data-i18n-aria="choosePattern"></button></label>
+      <label class="fieldRow"><span data-i18n="outline"></span> <button type="button" class="swatchBtn" id="outlineSwatch" data-i18n-aria="chooseOutline"></button></label>
 
-      <div class="paletteLabel">Shape colors</div>
+      <div class="paletteLabel" data-i18n="shapeColors"></div>
       <div id="paletteRow" class="paletteRow"></div>
 
-      <div class="hint">Pick a preset or set your own colors. Except black.</div>
+      <div class="hint" data-i18n="hint"></div>
     </div>
   </div>
 
@@ -508,8 +586,8 @@
   <div id="colorPickerOverlay" class="hidden" role="dialog" aria-modal="true" aria-labelledby="cpTitle">
     <div id="colorPickerCard">
       <div class="cpHead">
-        <span id="cpTitle">Color Picker</span>
-        <button class="cpCloseBtn" id="cpCloseBtn" aria-label="Close color picker">✕</button>
+        <span id="cpTitle" data-i18n="cpTitle"></span>
+        <button class="cpCloseBtn" id="cpCloseBtn" data-icon="x" data-i18n-aria="cpClose"></button>
       </div>
 
       <!-- 2D Saturation / Value Box -->
@@ -541,46 +619,51 @@
       <div class="cpInputRow">
         <div class="cpPreviewSwatch" id="cpPreviewSwatch"></div>
         <div class="cpHexGroup">
-          <span class="cpHexLabel">HEX CODE</span>
+          <span class="cpHexLabel" data-i18n="hexCode"></span>
           <input type="text" class="cpHexInput" id="cpHexInput" maxlength="7" spellcheck="false">
         </div>
       </div>
 
       <!-- Action Buttons -->
       <div class="cpActions">
-        <button class="cpBtn cpBtnCancel" id="cpCancelBtn">Cancel</button>
-        <button class="cpBtn cpBtnApply" id="cpApplyBtn">Done</button>
+        <button class="cpBtn cpBtnCancel" id="cpCancelBtn" data-i18n="cancel"></button>
+        <button class="cpBtn cpBtnApply" id="cpApplyBtn" data-i18n="done"></button>
       </div>
     </div>
   </div>
 
   <div id="welcomeOverlay" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
     <div id="welcomeCard">
-      <h2 id="welcomeTitle">welcome to imperfection.</h2>
-      <p>This little corner of the screen isn't for anything in particular — there's nothing to get "right." It's just a soft, colorful world of shapes that react to you, built for letting off steam, relaxing for a minute, or just having a bit of fun with color and motion.</p>
+      <div class="langSwitch" role="group" aria-label="Language">
+        <span class="ic" data-icon="globe"></span>
+        <button type="button" class="langBtn" data-lang="en">English</button>
+        <button type="button" class="langBtn" data-lang="uk">Українська</button>
+      </div>
+      <h2 id="welcomeTitle" data-i18n="w_title"></h2>
+      <p data-i18n="w_intro"></p>
 
-      <h3>How it works</h3>
+      <h3 data-i18n="w_how"></h3>
       <ul>
-        <li>Move your <strong>cursor or finger</strong> around and watch the lattice ripple beneath the shapes.</li>
-        <li><strong>Tap or click a shape</strong> to set it off — triggering dynamic audio feedback that matches your chosen shape style while shapes pop, fling, rainbow, grow, spin, or split.</li>
-        <li><strong>Tap empty space</strong> to send a shockwave rippling through everything at once with an atmospheric bass pulse.</li>
+        <li data-i18n="w_how1"></li>
+        <li data-i18n="w_how2"></li>
+        <li data-i18n="w_how3"></li>
       </ul>
 
-      <h3>The settings (⚙️ top right)</h3>
+      <h3 data-i18n="w_set"></h3>
       <ul>
-        <li><strong>Game mode (🚀)</strong> — the shapes turn into invaders and press <em>Play</em>, then fly the ship (with a mouse: grab the ship and hold while you drag; with a finger: drag anywhere; or arrow keys / WASD — it fires automatically). Your preset and shape style carry over and are remembered next time. Press Esc or 🏠 to return.</li>
-        <li><strong>Sound toggle (🔊)</strong> — mute or unmute audio feedback anytime.</li>
-        <li><strong>Presets</strong> — swap the whole mood in one tap: Colorful, Pastel, or Dark. Found colors you love (or picked your own)? Name the look and hit <em>Save</em> to keep it under <em>My presets</em>; tap one to bring it back, ✕ to delete it.</li>
-        <li><strong>Shape style</strong> — switch shapes & audio between bouncy <i>Geometric</i>, soft <i>Floral</i>, or dreamy <i>Sky</i>.</li>
-        <li><strong>Randomize</strong> — "Randomize all" reshuffles everything; "Shapes only" keeps your background as is and just remixes the shapes.</li>
-        <li><strong>Background / Pattern / Outline</strong> — pick your own colors by hand for the canvas, the wavy pattern, and the shape outlines.</li>
-        <li><strong>Shape colors</strong> — the palette your floating shapes are drawn from.</li>
+        <li data-i18n="w_game"></li>
+        <li data-i18n="w_sound"></li>
+        <li data-i18n="w_presets"></li>
+        <li data-i18n="w_style"></li>
+        <li data-i18n="w_rand"></li>
+        <li data-i18n="w_colors"></li>
+        <li data-i18n="w_shapecol"></li>
       </ul>
-      <p>Set it up however feels good, then just let your hands wander.</p>
+      <p data-i18n="w_outro"></p>
 
       <div class="welcomeFoot">
-        <label class="dontShowRow"><input type="checkbox" id="dontShowAgain"> Don't show this again</label>
-        <button id="welcomeCloseBtn">Let's go</button>
+        <label class="dontShowRow"><input type="checkbox" id="dontShowAgain"> <span data-i18n="dontShow"></span></label>
+        <button id="welcomeCloseBtn" data-i18n="letsgo"></button>
       </div>
     </div>
   </div>
@@ -592,6 +675,112 @@
   let W,H,DPR,t=0;
   let OL=1; // outline scale: 1 on widescreen, thinner on mobile
   const mouse={x:-9999,y:-9999,active:false};
+
+  // ---------- ICONS (inline SVG, no emojis) ----------
+  const svgI=b=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+b+'</svg>';
+  const SPK='<path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z"/>';
+  const ICONS={
+    gear:svgI('<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.3"/><circle cx="9" cy="17" r="2.3"/>'),
+    info:svgI('<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/>'),
+    soundOn:svgI(SPK+'<path d="M15.5 9a4 4 0 010 6M18.3 6.3a8 8 0 010 11.4"/>'),
+    soundOff:svgI(SPK+'<path d="M16 9.5l5 5M21 9.5l-5 5"/>'),
+    rocket:svgI('<path d="M12 3c3 2 5 5.5 5 9.5l-2 3H9l-2-3C7 8.5 9 5 12 3z"/><circle cx="12" cy="10" r="1.8"/><path d="M9 15.5L6.5 19l3-1M15 15.5l2.5 3.5-3-1M12 17.5V21"/>'),
+    home:svgI('<path d="M4 11l8-7 8 7"/><path d="M6 10v9h4v-5h4v5h4v-9"/>'),
+    x:svgI('<path d="M6 6l12 12M18 6L6 18"/>'),
+    save:svgI('<path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/>'),
+    dice:svgI('<rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="9" cy="9" r="1.1" fill="currentColor"/><circle cx="15" cy="15" r="1.1" fill="currentColor"/><circle cx="12" cy="12" r="1.1" fill="currentColor"/>'),
+    shapes:svgI('<path d="M8 4l4.5 7.5h-9z"/><circle cx="16.5" cy="16.5" r="3.5"/><rect x="4" y="14" width="6.5" height="6.5" rx="1.5"/>'),
+    play:svgI('<path d="M8 5v14l11-7z" fill="currentColor"/>'),
+    globe:svgI('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3.2 3.5 3.2 14.5 0 18M12 3c-3.2 3.5-3.2 14.5 0 18"/>')
+  };
+
+  // ---------- LANGUAGES ----------
+  const LANG_KEY='imperfection_lang';
+  const I18N={
+    en:{
+      gameTitle:'Game mode', gameAria:'Toggle game mode', backChill:'Back to chill mode',
+      soundOn:'Sound on (click to mute)', soundOff:'Sound off (click to unmute)', soundAria:'Toggle sound',
+      infoTitle:'How this works', gearTitle:'Settings', gearAria:'Open settings',
+      settings:'Settings', closeSettings:'Close settings',
+      presets:'Presets', pColorful:'Colorful', pPastel:'Pastel', pDark:'Dark',
+      myPresets:'My presets', namePh:'Name this look...', save:'Save', saveTitle:'Save the current colors as a preset',
+      shapeStyle:'Shape style', sGeo:'Geometric', sFloral:'Floral', sSky:'Sky',
+      randomize:'Randomize', randAll:'Randomize all', randAllTitle:'Randomize background, pattern, outline and shape colors',
+      randShapes:'Shapes only', randShapesTitle:'Randomize only the shape colors',
+      background:'Background', pattern:'Pattern', outline:'Outline',
+      chooseBg:'Choose background color', choosePattern:'Choose pattern color', chooseOutline:'Choose outline color',
+      shapeColors:'Shape colors', hint:'Pick a preset or set your own colors. Except black.',
+      cpTitle:'Color picker', cpClose:'Close color picker', hexCode:'HEX CODE', cancel:'Cancel', done:'Done',
+      empty:'Nothing saved yet!', apply:'Apply', del:'Delete', delAria:'Delete preset',
+      full:'Full — delete one first', noStorage:"Couldn't save (storage blocked)", savedPh:'Saved ✓ Name another...',
+      play:'PLAY', hintMouse:'grab the ship & drag to fly · or arrow keys / WASD · auto-fire', hintTouch:'drag anywhere to fly · auto-fire',
+      hintMouseShort:'grab the ship & drag · auto-fire', hintTouchShort:'drag anywhere to fly · auto-fire',
+      bestL:'best', scoreL:'score', score:'SCORE', wave:'WAVE', level:'LEVEL', biggerFaster:'BIGGER · FASTER', lv:'LV',
+      gameOver:'GAME OVER', again:'tap or press space to fly again', againTouch:'tap to fly again',
+      paused:'PAUSED', resume:'close settings to resume',
+      gameMode:'GAME MODE', chillMode:'CHILL MODE', breathe:'breathe out',
+      inv_geometric:'geometric invaders', inv_floral:'floral invaders', inv_sky:'sky invaders',
+      w_title:'hey, welcome to imperfection.',
+      w_intro:"There's no goal here and nothing to get right. It's just a quiet little corner with colorful shapes that move when you do. Poke them, drag them, make a mess. Good for blowing off steam or taking a breather.",
+      w_how:'What you can do',
+      w_how1:'Move your cursor (or finger) around and the web under the shapes wobbles along with you.',
+      w_how2:"Tap a shape and it does something: pops, flies off, turns rainbow, swells up, spins or splits in two. Every style has its own sounds.",
+      w_how3:'Tap empty space for a shockwave that shoves everything away. You can drag the shapes around too.',
+      w_set:'The buttons up top',
+      w_game:"<b>Game mode</b> turns the shapes into invaders. Hit Play, then fly the ship: with a mouse, grab it and drag; on a phone, drag anywhere; or use the arrow keys / WASD. It shoots on its own. Your look carries over. Esc or the home button takes you back.",
+      w_sound:'<b>Sound</b> — mute or unmute whenever you like.',
+      w_presets:"<b>Presets</b> — Colorful, Pastel or Dark in one tap. Found a combo you love? Give it a name and hit Save, and it'll show up under My presets (the little x deletes it).",
+      w_style:'<b>Shape style</b> — Geometric, Floral or Sky. It changes the shapes and the sounds.',
+      w_rand:"<b>Randomize</b> — “Randomize all” reshuffles everything; “Shapes only” leaves your background alone.",
+      w_colors:'<b>Background, pattern, outline</b> — pick those colors yourself.',
+      w_shapecol:'<b>Shape colors</b> — the set of colors the shapes draw from.',
+      w_outro:'Set it up however feels right, then let your hands wander.',
+      dontShow:"Don't show this again", letsgo:"Let's go"
+    },
+    uk:{
+      gameTitle:'Ігровий режим', gameAria:'Перемкнути ігровий режим', backChill:'Назад до спокійного режиму',
+      soundOn:'Звук увімкнено (натисни, щоб вимкнути)', soundOff:'Звук вимкнено (натисни, щоб увімкнути)', soundAria:'Звук',
+      infoTitle:'Як це працює', gearTitle:'Налаштування', gearAria:'Відкрити налаштування',
+      settings:'Налаштування', closeSettings:'Закрити налаштування',
+      presets:'Пресети', pColorful:'Яскравий', pPastel:'Пастельний', pDark:'Темний',
+      myPresets:'Мої пресети', namePh:'Назви цей стиль...', save:'Зберегти', saveTitle:'Зберегти поточні кольори як пресет',
+      shapeStyle:'Стиль фігур', sGeo:'Геометрія', sFloral:'Квіти', sSky:'Небо',
+      randomize:'Випадково', randAll:'Все випадково', randAllTitle:'Випадкові фон, візерунок, контур і кольори фігур',
+      randShapes:'Тільки фігури', randShapesTitle:'Випадкові кольори лише для фігур',
+      background:'Фон', pattern:'Візерунок', outline:'Контур',
+      chooseBg:'Обрати колір фону', choosePattern:'Обрати колір візерунка', chooseOutline:'Обрати колір контуру',
+      shapeColors:'Кольори фігур', hint:'Обери пресет або налаштуй кольори самостійно. Крім чорного.',
+      cpTitle:'Вибір кольору', cpClose:'Закрити вибір кольору', hexCode:'HEX-КОД', cancel:'Скасувати', done:'Готово',
+      empty:'Поки нічого не збережено!', apply:'Застосувати', del:'Видалити', delAria:'Видалити пресет',
+      full:'Повно — спершу видали щось', noStorage:'Не вдалося зберегти (сховище заблоковане)', savedPh:'Збережено ✓ Назви наступний...',
+      play:'ГРАТИ', hintMouse:'візьми корабель і тягни · або стрілки / WASD · стрільба автоматична', hintTouch:'тягни будь-де, щоб летіти · стрільба автоматична',
+      hintMouseShort:'візьми корабель і тягни · автострільба', hintTouchShort:'тягни будь-де · автострільба',
+      bestL:'рекорд', scoreL:'рахунок', score:'РАХУНОК', wave:'ХВИЛЯ', level:'РІВЕНЬ', biggerFaster:'БІЛЬШІ · ШВИДШІ', lv:'РВ',
+      gameOver:'КІНЕЦЬ ГРИ', again:'торкнись або натисни пробіл, щоб летіти знову', againTouch:'торкнись, щоб летіти знову',
+      paused:'ПАУЗА', resume:'закрий налаштування, щоб продовжити',
+      gameMode:'ІГРОВИЙ РЕЖИМ', chillMode:'СПОКІЙНИЙ РЕЖИМ', breathe:'видихни',
+      inv_geometric:'геометричні загарбники', inv_floral:'квіткові загарбники', inv_sky:'небесні загарбники',
+      w_title:'вітаю в imperfection.',
+      w_intro:'Тут немає мети, і нічого не треба робити «правильно». Це тихий куточок із кольоровими фігурами, які рухаються разом із тобою. Чіпай їх, тягай, влаштовуй безлад. Добре, щоб спустити пару або просто видихнути.',
+      w_how:'Що тут можна робити',
+      w_how1:'Водь курсором (або пальцем) — сітка під фігурами хвилюватиметься слідом.',
+      w_how2:'Торкнись фігури — і вона щось утне: лусне, відлетить, стане веселковою, роздутиметься, закрутиться або поділиться надвоє. Кожен стиль має власні звуки.',
+      w_how3:'Торкнись порожнього місця — і ударна хвиля розштовхає все навколо. Фігури ще можна перетягувати.',
+      w_set:'Кнопки вгорі',
+      w_game:'<b>Ігровий режим</b> перетворює фігури на загарбників. Натисни «Грати» і керуй кораблем: мишею — візьми його й тягни, на телефоні — тягни де завгодно, або стрілки / WASD. Стріляє він сам. Твій стиль збережеться. Esc або кнопка з будиночком поверне назад.',
+      w_sound:'<b>Звук</b> — вмикай і вимикай, коли захочеш.',
+      w_presets:'<b>Пресети</b> — Яскравий, Пастельний чи Темний одним дотиком. Знайшов поєднання, яке подобається? Дай йому назву й натисни «Зберегти» — воно з’явиться в «Моїх пресетах» (хрестик видаляє).',
+      w_style:'<b>Стиль фігур</b> — Геометрія, Квіти чи Небо. Змінюються і фігури, і звуки.',
+      w_rand:'<b>Випадково</b> — «Все випадково» перемішує все; «Тільки фігури» не чіпає фон.',
+      w_colors:'<b>Фон, візерунок, контур</b> — обери ці кольори самостійно.',
+      w_shapecol:'<b>Кольори фігур</b> — набір, з якого фігури беруть свої відтінки.',
+      w_outro:'Налаштуй усе так, як тобі подобається, а тоді просто дай рукам блукати.',
+      dontShow:'Більше не показувати', letsgo:'Поїхали'
+    }
+  };
+  let LANG='en';
+  try{ const sv=localStorage.getItem(LANG_KEY); if(sv==='uk'||sv==='en') LANG=sv; }catch(e){}
+  const tr=k=>{ const d=I18N[LANG]||I18N.en; return d[k]!==undefined?d[k]:(I18N.en[k]!==undefined?I18N.en[k]:k); };
 
   // ---------- THEME (no black, ever) ----------
   const PRESETS={
@@ -1744,9 +1933,9 @@
         size:tough?base*1.3:base*rnd(0.85,1.05),hp:hpv,mhp:hpv,ci:(Math.random()*8)|0,
         energy:0,clickE:0,hue:0,ph:rnd(0,6.28),dive:0,vx:0,col:[0,0,0]});
     }
-    g.banner={text:'WAVE '+w,life:110};
+    g.banner={text:tr('wave')+' '+w,life:110};
     if(w>1&&d.T>diffFor(w-1).T){
-      g.banner.sub='LEVEL '+(d.T+1)+' · BIGGER · FASTER'; g.banner.life=140; g.shake=Math.max(g.shake,8);
+      g.banner.sub=tr('level')+' '+(d.T+1)+' · '+tr('biggerFaster'); g.banner.life=140; g.shake=Math.max(g.shake,8);
       SoundEngine.playShockwaveSound(shapeStyle);
     }
     SoundEngine.playShapeSound({click:'split',size:30},shapeStyle);
@@ -1951,9 +2140,9 @@
     const txt=(str,x,y)=>{ ctx.strokeText(str,x,y); ctx.fillText(str,x,y); };
     ctx.strokeStyle=THEME.outline; ctx.fillStyle=THEME.bg; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
     const top=W<600?52:38;
-    ctx.font=`900 ${phone()?28:24}px ${FONT}`; ctx.lineWidth=7; txt(phone()?String(g.score):'SCORE '+g.score,16,top);
+    ctx.font=`900 ${phone()?28:24}px ${FONT}`; ctx.lineWidth=7; txt(phone()?String(g.score):tr('score')+' '+g.score,16,top);
     for(let i=0;i<g.lives;i++) drawShip(30+i*32,top+30,0.5,pal,false);
-    ctx.font=`900 16px ${FONT}`; ctx.lineWidth=5; txt('WAVE '+g.wave+' · LV '+(g.d?g.d.T+1:1),30+Math.max(3,g.lives)*32+6,top+36);
+    ctx.font=`900 16px ${FONT}`; ctx.lineWidth=5; txt(tr('wave')+' '+g.wave+' · '+tr('lv')+' '+(g.d?g.d.T+1:1),30+Math.max(3,g.lives)*32+6,top+36);
 
     ctx.textAlign='center';
     if(g.banner){
@@ -1965,22 +2154,22 @@
     }
     if(g.hint>0&&!g.over){
       ctx.globalAlpha=Math.min(1,g.hint/40); ctx.font=`800 16px ${FONT}`; ctx.lineWidth=5;
-      txt(g.ptype==='touch'?'drag anywhere to fly · auto-fire':'grab the ship & drag · auto-fire',W/2,H*0.4+44); ctx.globalAlpha=1;
+      txt(g.ptype==='touch'?tr('hintTouchShort'):tr('hintMouseShort'),W/2,H*0.4+44); ctx.globalAlpha=1;
     }
     if(g.over){
       ctx.globalAlpha=0.55; ctx.fillStyle=THEME.bg; ctx.fillRect(0,0,W,H); ctx.globalAlpha=1; ctx.fillStyle=THEME.bg;
       const fs=Math.min(W*0.13,86);
-      ctx.font=`900 ${fs}px ${FONT}`; ctx.lineWidth=fs*0.18; txt('GAME OVER',W/2,H*0.42);
-      ctx.font=`800 ${fs*0.32}px ${FONT}`; ctx.lineWidth=fs*0.1; txt(`score ${g.score}   ·   best ${g.best}`,W/2,H*0.42+fs*0.7);
+      ctx.font=`900 ${fs}px ${FONT}`; ctx.lineWidth=fs*0.18; txt(tr('gameOver'),W/2,H*0.42);
+      ctx.font=`800 ${fs*0.32}px ${FONT}`; ctx.lineWidth=fs*0.1; txt(`${tr('scoreL')} ${g.score}   ·   ${tr('bestL')} ${g.best}`,W/2,H*0.42+fs*0.7);
       if(g.overT>40){
         ctx.globalAlpha=0.6+Math.sin(t*0.006)*0.4;
-        ctx.font=`800 ${fs*0.26}px ${FONT}`; txt(phone()?'tap to fly again':'tap or press space to fly again',W/2,H*0.42+fs*1.3); ctx.globalAlpha=1;
+        ctx.font=`800 ${fs*0.26}px ${FONT}`; txt(phone()?tr('againTouch'):tr('again'),W/2,H*0.42+fs*1.3); ctx.globalAlpha=1;
       }
     }
     if(g.paused&&!g.over){
       const fs=Math.min(W*0.12,72); ctx.fillStyle=THEME.bg; ctx.strokeStyle=THEME.outline;
-      ctx.font=`900 ${fs}px ${FONT}`; ctx.lineWidth=fs*0.18; txt('PAUSED',W/2,H*0.42);
-      ctx.font=`800 ${Math.max(13,fs*0.24)}px ${FONT}`; ctx.lineWidth=5; txt('close settings to resume',W/2,H*0.42+fs*0.6);
+      ctx.font=`900 ${fs}px ${FONT}`; ctx.lineWidth=fs*0.18; txt(tr('paused'),W/2,H*0.42);
+      ctx.font=`800 ${Math.max(13,fs*0.24)}px ${FONT}`; ctx.lineWidth=5; txt(tr('resume'),W/2,H*0.42+fs*0.6);
     }
     ctx.textAlign='left';
   }
@@ -1992,18 +2181,18 @@
       saveCfg();
       for(const d of activeDrags.values()) d.shape.dragging=false;
       activeDrags.clear(); document.body.style.cursor='';
-      runTransition('GAME MODE',shapeStyle+' invaders',()=>{
+      runTransition(tr('gameMode'),tr('inv_'+shapeStyle),()=>{
         resetGame(); game.on=true; mouse.active=false; showPlayScreen();
         if(phone()){ settingsPanel.classList.remove('open'); settingsPanel.setAttribute('aria-hidden','true'); }
         document.body.classList.add('gamemode'); gameBtn.classList.add('on');
-        gameBtn.textContent='🏠'; gameBtn.title='Back to chill mode';
+        gameBtn.innerHTML=ICONS.home; gameBtn.title=tr('backChill');
       });
     } else {
-      runTransition('CHILL MODE','breathe out',()=>{
+      runTransition(tr('chillMode'),tr('breathe'),()=>{
         game.on=false; canvas.style.transform=''; particles=[]; game.keys={}; hidePlayScreen(); game.grab=null; game.paused=false;
         document.body.classList.remove('shipHover','shipHold','paused');
         document.body.classList.remove('gamemode'); gameBtn.classList.remove('on');
-        gameBtn.textContent='🚀'; gameBtn.title='Game mode';
+        gameBtn.innerHTML=ICONS.rocket; gameBtn.title=tr('gameTitle');
       });
     }
   }
@@ -2014,7 +2203,7 @@
         gameStartBest=document.getElementById('gameStartBest');
   function showPlayScreen(){
     game.started=false;
-    gameStartBest.textContent=game.best?('best '+game.best):'';
+    gameStartBest.textContent=game.best?(tr('bestL')+' '+game.best):'';
     gameStartEl.classList.remove('show'); void gameStartEl.offsetWidth;   // restart the pop-in animation
     gameStartEl.classList.add('show'); gameStartEl.setAttribute('aria-hidden','false');
   }
@@ -2215,8 +2404,8 @@
   if(audioBtn){
     audioBtn.addEventListener('click', ()=>{
       soundMuted = !soundMuted;
-      audioBtn.textContent = soundMuted ? '🔇' : '🔊';
-      audioBtn.title = soundMuted ? 'Sound Off (Click to unmute)' : 'Sound On (Click to mute)';
+      audioBtn.innerHTML = soundMuted ? ICONS.soundOff : ICONS.soundOn;
+      audioBtn.title = soundMuted ? tr('soundOff') : tr('soundOn');
       if(!soundMuted) initAudio();
     });
   }
@@ -2257,6 +2446,7 @@
   const paletteRow=document.getElementById('paletteRow');
 
   function updatePanelTheme(){
+    document.documentElement.style.setProperty('--ui-ink',THEME.outline);
     const [r,g,b]=hexToRgbArr(THEME.bg);
     const lum=0.2126*r+0.7152*g+0.0722*b;
     const isDark = lum < 130;
@@ -2463,7 +2653,7 @@
 
   outlineSwatch.addEventListener('click', () => {
     openColorPicker(THEME.outline, (newHex) => {
-      THEME.outline = ensureNotBlack(newHex, '#2b2a55');
+      THEME.outline = ensureNotBlack(newHex, '#2b2a55'); updatePanelTheme();
       outlineSwatch.style.backgroundColor = THEME.outline;
     });
   });
@@ -2502,7 +2692,7 @@
     if(!arr.length){
       const e=document.createElement('div');
       e.className='myPresetEmpty';
-      e.textContent='Nothing saved yet!';
+      e.textContent=tr('empty');
       myPresetList.appendChild(e);
       return;
     }
@@ -2510,7 +2700,7 @@
       const row=document.createElement('div'); row.className='myPresetItem';
 
       const apply=document.createElement('button');
-      apply.type='button'; apply.className='myPresetApply'; apply.title='Apply "'+p.name+'"';
+      apply.type='button'; apply.className='myPresetApply'; apply.title=tr('apply')+' "'+p.name+'"';
       const nm=document.createElement('span'); nm.className='myPresetName'; nm.textContent=p.name;
       const dots=document.createElement('span'); dots.className='myPresetDots';
       [p.bg,p.palette[0],p.palette[2],p.palette[5],p.palette[7]].forEach(c=>{
@@ -2520,8 +2710,8 @@
       apply.addEventListener('click',()=>applyMyPreset(p));
 
       const del=document.createElement('button');
-      del.type='button'; del.className='myPresetDel'; del.textContent='✕';
-      del.setAttribute('aria-label','Delete preset '+p.name); del.title='Delete';
+      del.type='button'; del.className='myPresetDel'; del.innerHTML=ICONS.x;
+      del.setAttribute('aria-label',tr('delAria')+' '+p.name); del.title=tr('del');
       del.addEventListener('click',()=>{
         const cur=loadMyPresets(); cur.splice(i,1); storeMyPresets(cur); renderMyPresets();
       });
@@ -2553,17 +2743,17 @@
     if(existing>=0) arr[existing]=entry;               // same name = update it
     else{
       if(arr.length>=MAX_MY_PRESETS){
-        myPresetName.value=''; myPresetName.placeholder='Full — delete one first';
+        myPresetName.value=''; myPresetName.placeholder=tr('full');
         return;
       }
       arr.push(entry);
     }
     if(!storeMyPresets(arr)){
-      myPresetName.value=''; myPresetName.placeholder="Couldn't save (storage blocked)";
+      myPresetName.value=''; myPresetName.placeholder=tr('noStorage');
       return;
     }
-    myPresetName.value=''; myPresetName.placeholder='Saved ✓ Name another...';
-    setTimeout(()=>{ myPresetName.placeholder='Name this look...'; },1800);
+    myPresetName.value=''; myPresetName.placeholder=tr('savedPh');
+    setTimeout(()=>{ myPresetName.placeholder=tr('namePh'); },1800);
     saveCfg();
     renderMyPresets();
   }
@@ -2727,6 +2917,27 @@
   document.querySelectorAll('.presetBtn').forEach(btn=>{
     btn.addEventListener('click',()=>applyPreset(btn.dataset.preset));
   });
+
+  // ---------- apply icons + language ----------
+  document.querySelectorAll('[data-icon]').forEach(el=>{ el.innerHTML=ICONS[el.dataset.icon]||''; });
+  function applyLang(){
+    document.documentElement.lang=LANG;
+    document.querySelectorAll('[data-i18n]').forEach(el=>{ el.innerHTML=tr(el.dataset.i18n); });
+    document.querySelectorAll('[data-i18n-title]').forEach(el=>{ el.title=tr(el.dataset.i18nTitle); });
+    document.querySelectorAll('[data-i18n-aria]').forEach(el=>{ el.setAttribute('aria-label',tr(el.dataset.i18nAria)); });
+    document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ el.placeholder=tr(el.dataset.i18nPh); });
+    document.querySelectorAll('.langBtn').forEach(b=>b.classList.toggle('active',b.dataset.lang===LANG));
+    gameBtn.title=game.on?tr('backChill'):tr('gameTitle');
+    audioBtn.title=soundMuted?tr('soundOff'):tr('soundOn');
+    gameStartBest.textContent=game.best?(tr('bestL')+' '+game.best):'';
+    renderMyPresets();
+  }
+  function setLang(l){
+    LANG=l; try{ localStorage.setItem(LANG_KEY,l); }catch(e){}
+    applyLang();
+  }
+  document.querySelectorAll('.langBtn').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.lang)));
+  applyLang();
 
   // Restore the saved look (preset + shape type); otherwise randomize on first load
   if(loadCfg()){ syncInputs(); applyBackground(); } else randomizeAllColors();
