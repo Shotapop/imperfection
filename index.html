@@ -24,7 +24,7 @@
   }
   #web{position:fixed;inset:0;width:100%;height:100%;z-index:1;display:block}
 
-  /* ---------- settings UI ---------- */
+  /* settings */
   #uiRoot{
     position:fixed;
     top:calc(18px + env(safe-area-inset-top,0px));
@@ -145,8 +145,6 @@
     background:var(--field-bg);
     transition:background-color .25s ease;
   }
-
-  /* Custom Swatch Button Trigger */
   .swatchBtn{
     display:block;flex-shrink:0;
     width:32px;height:32px;border-radius:9px;border:none;
@@ -173,7 +171,7 @@
   #settingsPanel.dark .styleBtn:hover{background:#3d3564}
   #settingsPanel.dark .styleBtn.active{background:linear-gradient(135deg,#ff7ab2,#7a8cff);color:#fff}
 
-  /* ---------- welcome overlay ---------- */
+  /* welcome overlay */
   #welcomeOverlay{
     position:fixed;inset:0;z-index:60;
     background:rgba(20,18,36,0.55);
@@ -216,7 +214,7 @@
     background-clip:padding-box;
   }
 
-  /* Dark mode adaptive styling for welcome card */
+  /* dark mode adaptive styling */
   #welcomeCard.dark {
     background:rgba(24,21,38,0.96);
     color:#efe6fb;
@@ -260,8 +258,6 @@
     font-size:12px;opacity:.75;cursor:pointer;
   }
   .dontShowRow input{width:15px;height:15px;flex-shrink:0;cursor:pointer}
-
-  /* ---------- custom in-app color picker window ---------- */
   #colorPickerOverlay{
     position:fixed;inset:0;z-index:70;
     background:rgba(20,18,36,0.55);
@@ -296,8 +292,6 @@
     font-size:16px;cursor:pointer;line-height:1;padding:4px;opacity:.8;
   }
   .cpCloseBtn:hover{opacity:1}
-
-  /* 2D Saturation / Value Box */
   .cpSatValBox{
     position:relative;width:100%;height:150px;
     border-radius:14px;overflow:hidden;cursor:crosshair;
@@ -312,8 +306,6 @@
     transform:translate(-50%,-50%);pointer-events:none;
     box-shadow:0 0 0 1px rgba(0,0,0,0.4),0 2px 6px rgba(0,0,0,0.3);
   }
-
-  /* Hue Slider */
   .cpHueBox{
     position:relative;width:100%;height:20px;border-radius:10px;
     background:linear-gradient(to right,#f00 0%,#ff0 17%,#0f0 33%,#0ff 50%,#00f 67%,#f0f 83%,#f00 100%);
@@ -327,8 +319,6 @@
     box-shadow:0 2px 6px rgba(0,0,0,0.4);
     border:1px solid rgba(0,0,0,0.2);
   }
-
-  /* Preview & Hex Row */
   .cpInputRow{display:flex;align-items:center;gap:10px}
   .cpPreviewSwatch{
     width:40px;height:40px;border-radius:12px;
@@ -345,8 +335,6 @@
     text-transform:uppercase;
   }
   #colorPickerCard.dark .cpHexInput{background:#332c52}
-
-  /* Quick Swatches */
   .cpQuickRow{display:flex;gap:6px;justify-content:space-between;margin-top:2px}
   .cpQuickSwatch{
     width:28px;height:28px;border-radius:8px;border:none;
@@ -354,8 +342,6 @@
     transition:transform .12s ease;
   }
   .cpQuickSwatch:hover{transform:scale(1.15)}
-
-  /* Actions */
   .cpActions{display:flex;gap:8px;margin-top:4px}
   .cpBtn{
     flex:1;border:none;border-radius:12px;padding:10px;
@@ -368,8 +354,6 @@
     color:#fff;box-shadow:0 4px 14px rgba(43,42,85,0.25);
   }
   .cpBtnApply:hover,.cpBtnCancel:hover{filter:brightness(1.06)}
-
-  /* ---------- mobile adaptation ---------- */
   @media (max-width:600px){
     #uiRoot{
       top:calc(12px + env(safe-area-inset-top,0px));
@@ -398,14 +382,13 @@
     #settingsPanel{width:calc(100vw - 20px);right:-4px}
   }
 
-  /* ---------- game mode ---------- */
+  /* game */
   #fx{position:fixed;inset:0;width:100%;height:100%;z-index:65;pointer-events:none;display:none}
   #gameBtn.on{background:linear-gradient(135deg,#ffb84d,#ff4d6d)}
   html,body{overscroll-behavior:none}
   body.gamemode{cursor:default;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
   body.gamemode.shipHover{cursor:grab}
   body.gamemode.shipHold{cursor:grabbing}
-  /* play screen shown when entering game mode */
   #gameStart{
     position:fixed;inset:0;z-index:20;pointer-events:none;
     display:none;align-items:center;justify-content:center;
@@ -438,8 +421,6 @@
   @keyframes zebraScroll{from{-webkit-mask-position:0 0;mask-position:0 0}to{-webkit-mask-position:0 126px;mask-position:0 126px}}
   body.gamemode .zebra::after{animation:zebraScroll 2.2s linear infinite}
   body.gamemode.paused .zebra::after{animation-play-state:paused}
-
-  /* ---------- polished buttons + icons ---------- */
   :root{--ui-ink:#2b2a55;--shine:linear-gradient(165deg,rgba(255,255,255,.7) 0,rgba(255,255,255,.12) 46%,rgba(255,255,255,0) 47%)}
   .ic{display:inline-flex;align-items:center;vertical-align:middle}
   .ic svg{width:1.2em;height:1.2em;display:block}
@@ -581,29 +562,22 @@
       <div class="hint" data-i18n="hint"></div>
     </div>
   </div>
-
-  <!-- Custom In-App Color Picker Window -->
   <div id="colorPickerOverlay" class="hidden" role="dialog" aria-modal="true" aria-labelledby="cpTitle">
     <div id="colorPickerCard">
       <div class="cpHead">
         <span id="cpTitle" data-i18n="cpTitle"></span>
         <button class="cpCloseBtn" id="cpCloseBtn" data-icon="x" data-i18n-aria="cpClose"></button>
       </div>
-
-      <!-- 2D Saturation / Value Box -->
       <div class="cpSatValBox" id="cpSatValBox">
         <div class="cpSatValBg" id="cpSatValBg"></div>
         <div class="cpSatValWhite"></div>
         <div class="cpSatValBlack"></div>
         <div class="cpCrosshair" id="cpCrosshair"></div>
       </div>
-
-      <!-- Hue Bar -->
       <div class="cpHueBox" id="cpHueBox">
         <div class="cpHueHandle" id="cpHueHandle"></div>
       </div>
-
-      <!-- Quick Preset Swatches -->
+     
       <div class="cpQuickRow" id="cpQuickRow">
         <button class="cpQuickSwatch" style="background:#ff2e9a" data-hex="#ff2e9a"></button>
         <button class="cpQuickSwatch" style="background:#ff3b3b" data-hex="#ff3b3b"></button>
@@ -615,7 +589,7 @@
         <button class="cpQuickSwatch" style="background:#ffffff" data-hex="#ffffff"></button>
       </div>
 
-      <!-- Preview & Input -->
+  
       <div class="cpInputRow">
         <div class="cpPreviewSwatch" id="cpPreviewSwatch"></div>
         <div class="cpHexGroup">
@@ -624,7 +598,6 @@
         </div>
       </div>
 
-      <!-- Action Buttons -->
       <div class="cpActions">
         <button class="cpBtn cpBtnCancel" id="cpCancelBtn" data-i18n="cancel"></button>
         <button class="cpBtn cpBtnApply" id="cpApplyBtn" data-i18n="done"></button>
@@ -673,10 +646,9 @@
   const canvas=document.getElementById('web');
   const ctx=canvas.getContext('2d');
   let W,H,DPR,t=0;
-  let OL=1; // outline scale: 1 on widescreen, thinner on mobile
+  let OL=1; 
   const mouse={x:-9999,y:-9999,active:false};
 
-  // ---------- ICONS (inline SVG, no emojis) ----------
   const svgI=b=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+b+'</svg>';
   const SPK='<path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z"/>';
   const ICONS={
@@ -694,7 +666,6 @@
     globe:svgI('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3.2 3.5 3.2 14.5 0 18M12 3c-3.2 3.5-3.2 14.5 0 18"/>')
   };
 
-  // ---------- LANGUAGES ----------
   const LANG_KEY='imperfection_lang';
   const I18N={
     en:{
@@ -782,7 +753,7 @@
   try{ const sv=localStorage.getItem(LANG_KEY); if(sv==='uk'||sv==='en') LANG=sv; }catch(e){}
   const tr=k=>{ const d=I18N[LANG]||I18N.en; return d[k]!==undefined?d[k]:(I18N.en[k]!==undefined?I18N.en[k]:k); };
 
-  // ---------- THEME (no black, ever) ----------
+
   const PRESETS={
     colorful:{
       bg:'#f6f3e9',
@@ -828,7 +799,6 @@
     }).join('');
   }
 
-  /* HSV Conversion Utils */
   function rgbToHsv(r, g, b) {
     r /= 255; g /= 255; b /= 255;
     const max = Math.max(r, g, b), min = Math.min(r, g, b);
@@ -892,7 +862,6 @@
   const HOVER_STYLES=['bounce','shake','jiggle','spin','pulse','wobble','orbit'];
   const CLICK_STYLES=['pop','fling','rainbow','grow','spinout','split'];
 
-  // ---------- WEB AUDIO API PROCEDURAL SOUND SYNTHESIS ENGINE ----------
   let audioCtx = null;
   let soundMuted = false;
   let masterGain = null;
@@ -925,7 +894,6 @@
     return noiseBuffer;
   }
 
-  // --- GEOMETRIC SOUNDS (Funky / Boop / Beep / Bing / Bong) ---
   function playFunkyPop(now, p) {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
@@ -1053,7 +1021,6 @@
     osc.start(now); osc.stop(now + 0.29);
   }
 
-  // --- FLORAL SOUNDS (Grounded & Ethereal / Kalimba / Glass Chimes) ---
   function playFloralPop(now, p) {
     const baseFreq = 220 + p * 330;
     const osc1 = audioCtx.createOscillator();
@@ -1194,7 +1161,6 @@
     osc.stop(now + 1.02); overtone.stop(now + 1.02);
   }
 
-  // --- SKY SOUNDS (Dreamy / Celestial / High Shimmer / Air Sweep) ---
   function playSkyPop(now, p) {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
@@ -1370,7 +1336,6 @@
     }
   }
 
-  // Master Sound Engine Interface
   const SoundEngine = {
     playShapeSound(s, style) {
       if (soundMuted) return;
@@ -1530,7 +1495,7 @@
       if(s.dead>0){ s.dead-=1; if(s.dead===0) respawn(s); continue; }
 
       if(s.dragging){
-        // position is being driven directly by the pointer; don't fight it with anchor/drift physics
+
         s.vx=0; s.vy=0;
         if(mouse.active){
           const d=Math.hypot(s.x-mouse.x,s.y-mouse.y);
@@ -1581,7 +1546,7 @@
       ctx.closePath();return;
     }
     if(kind==='flower'||kind==='blossom'){
-      // slender 6-petal flower / rounder 5-petal blossom; the centre disc is drawn separately in paintShape
+
       const petals=kind==='flower'?6:5;
       const pr=r*0.5;
       const pw=kind==='flower'?r*0.21:r*0.3;
@@ -1603,7 +1568,7 @@
       ctx.moveTo(0,-r);
       ctx.bezierCurveTo(r*0.85,-r*0.45,r*0.85,r*0.5,0,r);
       ctx.bezierCurveTo(-r*0.85,r*0.5,-r*0.85,-r*0.45,0,-r);
-      ctx.closePath();return; // vein is drawn separately in paintShape
+      ctx.closePath();return; 
     }
     if(kind==='bud'){
       ctx.moveTo(0,-r);
@@ -1677,12 +1642,10 @@
     if(FLORAL_KINDS[kind]) lw*=0.8;
     shapePath(kind,r);
     if(SILHOUETTE_KINDS[kind]){
-      // outer outline: wide stroke, then the fill covers its inner half
       ctx.shadowColor=glowCol; ctx.shadowBlur=glowBlur;
       ctx.lineWidth=lw*1.5; ctx.strokeStyle=ink; ctx.stroke();
       ctx.shadowBlur=0;
       ctx.fillStyle=fill; ctx.fill();
-      // soft petal definition
       ctx.save(); ctx.globalAlpha*=0.4; ctx.lineWidth=lw*0.4; ctx.stroke(); ctx.restore();
       if(kind!=='clover'){
         const cr=r*(kind==='flower'?0.2:0.24);
@@ -1739,10 +1702,7 @@
   }
 
   function draw(alpha){
-    // alpha (0..1) is how far we are between the last physics tick and the next one.
-    // Rendering at this interpolated position (instead of the raw simulated x/y) keeps
-    // motion smooth on high refresh-rate screens (120Hz phones etc.) where the display
-    // repaints far more often than the fixed-rate physics simulation ticks.
+
     alpha = (alpha===undefined || game.on) ? 1 : Math.max(0,Math.min(1,alpha));
     const lerp=(a,b)=>a+(b-a)*alpha;
     ctx.clearRect(0,0,W,H);
@@ -1781,7 +1741,6 @@
     ctx.globalAlpha=1;
   }
 
-    // ================= SAVED LOOK (preset + shape type) =================
   const SAVE_KEY='imperfection_saved_look';
   const BEST_KEY='imperfection_best_score';
   function saveCfg(){
@@ -1800,7 +1759,6 @@
     }catch(e){ return false; }
   }
 
-  // ================= GAME SOUNDS =================
   SoundEngine.laser=function(style){
     if(soundMuted) return; initAudio(); if(!audioCtx) return;
     const now=audioCtx.currentTime, o=audioCtx.createOscillator(), g=audioCtx.createGain();
@@ -1825,7 +1783,6 @@
     o.connect(g2); g2.connect(masterGain); o.start(now); o.stop(tt+0.5);
   };
 
-  // ================= THICK BAR TRANSITION =================
   const fx=document.getElementById('fx'), fctx=fx.getContext('2d');
   const trans={on:false,swapped:false,t0:0,label:'',sub:'',mid:null};
   const clamp01=v=>Math.max(0,Math.min(1,v));
@@ -1876,7 +1833,6 @@
     requestAnimationFrame(transTick);
   }
 
-  // ================= GAME MODE: space shooter =================
   const game={on:false,aliens:[],bullets:[],ebullets:[],keys:{},tx:0,ty:0,ship:{x:0,y:0,inv:0},
     score:0,lives:3,wave:0,best:0,over:false,overT:0,cd:0,fireCd:60,diveCd:150,waveDelay:30,
     banner:null,shake:0,fy:0,shots:0,ax:60,sp:60,cols:5,started:false,grab:null,
@@ -1886,8 +1842,7 @@
   const palRGB=()=>THEME.palette.map(hexToRgbArr);
   const phone=()=>matchMedia('(pointer:coarse)').matches||W<600;
 
-  // Difficulty: continuous per-wave ramp + a bigger jump every 5 waves ("level"). No end, no win.
-  // Caps only exist where the game would physically break (screen size, bullet tunnelling).
+
   function diffFor(w){
     w=Math.max(1,w); const p=w-1, T=Math.floor(p/5);
     return {
@@ -1904,7 +1859,7 @@
       sway:Math.min(4,(1+0.05*p)*(1+0.06*T))                   // formation sway speed
     };
   }
-  // shortest distance from point (cx,cy) to segment (px,py)-(x,y): fast bullets can't skip through the ship
+
   function segD(px,py,x,y,cx,cy){
     const dx=x-px, dy=y-py, l=dx*dx+dy*dy; let u=l?((cx-px)*dx+(cy-py)*dy)/l:0; u=u<0?0:u>1?1:u;
     return Math.hypot(px+dx*u-cx,py+dy*u-cy);
