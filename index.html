@@ -8,7 +8,6 @@
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{width:100%;height:100%;overflow:hidden;background:#f6f3e9}
   body{cursor:crosshair;touch-action:none}
-  /* wavy zebra-stripe paper background using CSS mask for instant color updates */
   .zebra{
     position:fixed;inset:0;z-index:0;pointer-events:none;
     background-color:#f6f3e9;
@@ -24,7 +23,6 @@
   }
   #web{position:fixed;inset:0;width:100%;height:100%;z-index:1;display:block}
 
-  /* settings */
   #uiRoot{
     position:fixed;
     top:calc(18px + env(safe-area-inset-top,0px));
@@ -171,7 +169,6 @@
   #settingsPanel.dark .styleBtn:hover{background:#3d3564}
   #settingsPanel.dark .styleBtn.active{background:linear-gradient(135deg,#ff7ab2,#7a8cff);color:#fff}
 
-  /* welcome overlay */
   #welcomeOverlay{
     position:fixed;inset:0;z-index:60;
     background:rgba(20,18,36,0.55);
@@ -214,7 +211,6 @@
     background-clip:padding-box;
   }
 
-  /* dark mode adaptive styling */
   #welcomeCard.dark {
     background:rgba(24,21,38,0.96);
     color:#efe6fb;
@@ -382,7 +378,6 @@
     #settingsPanel{width:calc(100vw - 20px);right:-4px}
   }
 
-  /* game */
   #fx{position:fixed;inset:0;width:100%;height:100%;z-index:65;pointer-events:none;display:none}
   #gameBtn.on{background:linear-gradient(135deg,#ffb84d,#ff4d6d)}
   html,body{overscroll-behavior:none}
@@ -1633,8 +1628,6 @@
     ctx.closePath();
   }
 
-  // Fill + outline. Overlapping-part florals (flower, blossom, clover) get ONE outline around the
-  // whole silhouette plus faint inner petal lines, instead of a heavy stroke around every petal.
   const SILHOUETTE_KINDS={flower:1,blossom:1,clover:1};
   const FLORAL_KINDS={flower:1,blossom:1,clover:1,petal:1,leaf:1,bud:1};
   function paintShape(kind,r,col,lw,glowCol,glowBlur){
@@ -1706,7 +1699,6 @@
     alpha = (alpha===undefined || game.on) ? 1 : Math.max(0,Math.min(1,alpha));
     const lerp=(a,b)=>a+(b-a)*alpha;
     ctx.clearRect(0,0,W,H);
-    // game mode: no colorful lattice, just the zebra pattern behind the play field
     if(!game.on){
     for(const e of edges){
       const A=nodes[e.a],B=nodes[e.b];
@@ -1847,16 +1839,16 @@
     w=Math.max(1,w); const p=w-1, T=Math.floor(p/5);
     return {
       T,
-      size:1+0.1*T,                                            // invader size multiplier (screen-capped at spawn)
-      hp:1+Math.floor(T/2),                                    // base hit points
-      bv:Math.min(20,(4.4+0.2*p)*(1+0.08*T)),                  // enemy bullet speed
-      fire:Math.max(8,Math.max(30,66-3*p)/(1+0.1*T)),          // frames between enemy shots
-      fan:Math.min(5,1+Math.floor(T/2)),                       // bullets per enemy shot (spread)
-      dive:Math.max(16,Math.max(56,138-9*p)/(1+0.12*T)),       // frames between dive-bombs
-      divers:Math.min(4,1+Math.floor(T/3)),                    // invaders per dive-bomb
-      dv:Math.min(16,(4.2+0.22*p)*(1+0.07*T)),                 // dive speed
-      home:Math.min(10,4*(1+0.05*T)),                          // dive steering strength
-      sway:Math.min(4,(1+0.05*p)*(1+0.06*T))                   // formation sway speed
+      size:1+0.1*T,
+      hp:1+Math.floor(T/2),
+      bv:Math.min(20,(4.4+0.2*p)*(1+0.08*T)),
+      fire:Math.max(8,Math.max(30,66-3*p)/(1+0.1*T)),
+      fan:Math.min(5,1+Math.floor(T/2)),
+      dive:Math.max(16,Math.max(56,138-9*p)/(1+0.12*T)),
+      divers:Math.min(4,1+Math.floor(T/3)),
+      dv:Math.min(16,(4.2+0.22*p)*(1+0.07*T)),
+      home:Math.min(10,4*(1+0.05*T)),
+      sway:Math.min(4,(1+0.05*p)*(1+0.06*T))
     };
   }
 
@@ -1878,7 +1870,7 @@
     const base=Math.max(base0,Math.min(base0*d.size,Math.min(W,H)*(mob?0.17:0.14)));
     const cols=Math.max(3,Math.min(9,Math.floor((W-(mob?40:60))/(base*1.7))));
     const sp=Math.min(base*1.75,(W-80)/cols); let rows=Math.min(mob?4:5,1+Math.ceil(w/2));
-    if(d.T>0) rows=Math.min(rows,Math.max(2,Math.floor((H*0.46-100)/(sp*0.85))+1)); // bigger invaders must still fit on screen
+    if(d.T>0) rows=Math.min(rows,Math.max(2,Math.floor((H*0.46-100)/(sp*0.85))+1));
     g.fyMax=Math.max(0,Math.min(H*0.22,H*0.4-(100+(rows-1)*sp*0.85)));
     g.sp=sp; g.cols=cols; g.ax=Math.max(12,(W-(cols-1)*sp)/2-base*0.7);
     for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){
@@ -1897,7 +1889,7 @@
   }
 
   function ripple(x,y,pw){
-    return;   // the lattice is hidden in game mode, so there is nothing to ripple
+    return;
     for(const n of nodes){
       const dx=n.x-x, dy=n.y-y, d=Math.hypot(dx,dy);
       if(d<240&&d>0.01){ const f=(1-d/240)*pw; n.vx+=dx/d*f; n.vy+=dy/d*f; }
@@ -1927,8 +1919,6 @@
     }
   }
 
-  // Paused while settings / info / the color picker are open, so you can tweak colors (or close a
-  // panel you opened by accident) without losing progress. Colors still update live on the frozen scene.
   function isPaused(){
     return game.on&&game.started&&(settingsPanel.classList.contains('open')||
       !welcomeOverlay.classList.contains('hidden')||!colorPickerOverlay.classList.contains('hidden'));
@@ -1941,7 +1931,7 @@
     if(k.arrowup||k.w) g.ty-=spd; if(k.arrowdown||k.s) g.ty+=spd;
     g.tx=Math.max(24,Math.min(W-24,g.tx)); g.ty=Math.max(H*(phone()?0.5:0.45),Math.min(H-(phone()?70:50),g.ty));
     const lp=phone()?0.4:0.28; s.x+=(g.tx-s.x)*lp; s.y+=(g.ty-s.y)*lp;
-    if(!g.started) return;              // waiting on the Play screen: ship idles, nothing spawns or fires
+    if(!g.started) return;
     if(s.inv>0) s.inv--;
     g.shake*=0.88;
     canvas.style.transform=g.shake>0.6?`translate(${rnd(-g.shake,g.shake)}px,${rnd(-g.shake,g.shake)}px)`:'';
@@ -2009,8 +1999,6 @@
     g.aliens=g.aliens.filter(a=>a.hp>0);
   }
 
-  // Ship color: the hue sitting farthest from every hue in the current palette (for a one-hue
-  // theme that's simply the opposite side of the wheel), with lightness chosen to pop off the background.
   let shipKey='', shipCols=null;
   function shipColors(){
     const key=THEME.palette.join()+THEME.bg+THEME.zebra;
@@ -2029,14 +2017,11 @@
         let md=180; for(const x of hues){ const dd=Math.abs(h-x), cd=Math.min(dd,360-dd); if(cd<md) md=cd; }
         if(md>gap){ gap=md; best=h; }
       }
-    } else {                                   // grayscale palette: oppose the zebra tint instead
+    } else {
       best=(toHSL(THEME.zebra).h+180)%360;
     }
     let bodyC, flameC;
     if(gap<45){
-      // Rainbow-like palette: every hue is taken, so hue alone can't separate the ship from the shapes/background.
-      // Push hard on lightness instead (deep + fully saturated on light bgs, glowing-bright on dark ones),
-      // and take the hue opposite the background tint when it has one.
       const h=bgc.s>0.06?(bgc.h+180)%360:best;
       bodyC=hsl(h,1,dark?0.74:0.34);
       flameC=hsl(h,1,dark?0.92:0.6);
@@ -2058,7 +2043,7 @@
       ctx.fillStyle=rgb(sc2.flame); ctx.fill(); ctx.lineWidth=3.5*OL; ctx.strokeStyle=THEME.outline; ctx.stroke();
     }
     ctx.beginPath(); ctx.moveTo(0,-26); ctx.lineTo(20,18); ctx.lineTo(9,12); ctx.lineTo(0,20); ctx.lineTo(-9,12); ctx.lineTo(-20,18); ctx.closePath();
-    ctx.lineJoin='round'; ctx.lineWidth=4*OL+9; ctx.strokeStyle=THEME.bg; ctx.stroke();   // halo keeps it readable over any shape
+    ctx.lineJoin='round'; ctx.lineWidth=4*OL+9; ctx.strokeStyle=THEME.bg; ctx.stroke();
     ctx.fillStyle=rgb(sc2.body); ctx.fill(); ctx.lineWidth=4*OL; ctx.strokeStyle=THEME.outline; ctx.stroke();
     ctx.beginPath(); ctx.arc(0,-2,6,0,Math.PI*2); ctx.fillStyle=THEME.bg; ctx.fill(); ctx.lineWidth=3*OL; ctx.stroke();
     ctx.restore();
@@ -2077,14 +2062,12 @@
     for(const e of g.ebullets){
       const c=pal[e.ci%pal.length], R=(9+2*OL)*(1+Math.sin(t*0.02+e.x*0.05)*0.14);
       const bright=[c[0]+(255-c[0])*0.35,c[1]+(255-c[1])*0.35,c[2]+(255-c[2])*0.35];
-      // plain outlined circle
       ctx.beginPath(); ctx.arc(e.x,e.y,R+3*OL,0,Math.PI*2); ctx.fillStyle=THEME.outline; ctx.fill();
       ctx.beginPath(); ctx.arc(e.x,e.y,R,0,Math.PI*2); ctx.fillStyle=rgb(bright); ctx.fill();
-      // white-hot core
       ctx.beginPath(); ctx.arc(e.x,e.y,R*0.58,0,Math.PI*2); ctx.fillStyle='#fff'; ctx.fill();
     }
     if(!g.over&&!(s.inv>0&&((s.inv/5)|0)%2)) drawShip(s.x,s.y,phone()?1.2:1,pal,true);
-    if(g.ptype!=='touch'&&!g.over){       // cursor play: show the ship is something you grab
+    if(g.ptype!=='touch'&&!g.over){
       const held=!!g.grab;
       ctx.save(); ctx.globalAlpha=held?0.95:0.4+Math.sin(t*0.006)*0.2;
       ctx.setLineDash(held?[]:[7,7]); ctx.lineWidth=3; ctx.strokeStyle=held?rgb(shipColors().body):THEME.outline;
@@ -2129,7 +2112,6 @@
     ctx.textAlign='left';
   }
 
-  // ---- mode switching ----
   function toggleGame(){
     if(trans.on) return;
     if(!game.on){
@@ -2153,13 +2135,12 @@
   }
   gameBtn.addEventListener('click',()=>{ gameBtn.blur(); toggleGame(); });
 
-  // ---- play screen ----
   const gameStartEl=document.getElementById('gameStart'), playBtn=document.getElementById('playBtn'),
         gameStartBest=document.getElementById('gameStartBest');
   function showPlayScreen(){
     game.started=false;
     gameStartBest.textContent=game.best?(tr('bestL')+' '+game.best):'';
-    gameStartEl.classList.remove('show'); void gameStartEl.offsetWidth;   // restart the pop-in animation
+    gameStartEl.classList.remove('show'); void gameStartEl.offsetWidth;
     gameStartEl.classList.add('show'); gameStartEl.setAttribute('aria-hidden','false');
   }
   function hidePlayScreen(){ gameStartEl.classList.remove('show'); gameStartEl.setAttribute('aria-hidden','true'); }
@@ -2170,10 +2151,9 @@
   }
   playBtn.addEventListener('click',()=>{ playBtn.blur(); startPlaying(); });
 
-  // ---- game input ----
   const inUI=e=>e.target.closest&&(e.target.closest('#uiRoot')||e.target.closest('#welcomeOverlay')||e.target.closest('#colorPickerOverlay')||e.target.closest('#gameStart'));
-  const SENS=1.4;                                // touch: relative drag anywhere
-  const GRAB_R=64;                               // mouse/pen: how close to the ship you must press to grab it
+  const SENS=1.4;
+  const GRAB_R=64;
   const cursorClass=()=>{
     const b=document.body.classList;
     b.toggle('shipHold',game.on&&!!game.grab&&game.ptype!=='touch');
@@ -2186,12 +2166,10 @@
       if(gr){ game.tx=gr.sx+(e.clientX-gr.px)*SENS; game.ty=gr.sy+(e.clientY-gr.py)*SENS; }
       return;
     }
-    // mouse / pen: only moves the ship while you're holding it
     if(gr){
-      if(e.buttons===0){ game.grab=null; cursorClass(); }       // release happened outside the window
+      if(e.buttons===0){ game.grab=null; cursorClass(); }
       else { game.tx=e.clientX+gr.ox; game.ty=e.clientY+gr.oy; }
     }
-    // hover feedback: open hand over the ship
     const s=game.ship, near=game.started&&!game.over&&!inUI(e)&&Math.hypot(e.clientX-s.x,e.clientY-s.y)<=GRAB_R;
     document.body.classList.toggle('shipHover',near&&!gr);
   });
@@ -2203,7 +2181,7 @@
     else if(e.button===0){
       const s=game.ship;
       if(!game.over&&Math.hypot(e.clientX-s.x,e.clientY-s.y)<=GRAB_R){
-        game.grab={ox:s.x-e.clientX,oy:s.y-e.clientY};          // keep the offset so the ship doesn't jump to the cursor
+        game.grab={ox:s.x-e.clientX,oy:s.y-e.clientY};
         game.tx=s.x; game.ty=s.y;
         document.body.classList.remove('shipHover'); cursorClass();
         if(e.target&&e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(err){} }
@@ -2214,30 +2192,30 @@
   window.addEventListener('pointerup',endGrab);
   window.addEventListener('pointercancel',endGrab);
   window.addEventListener('blur',endGrab);
+  const keyName=e=>{
+    const m=/^Key([A-Z])$/.exec(e.code||'');
+    return m?m[1].toLowerCase():e.key.toLowerCase();
+  };
   window.addEventListener('keydown',e=>{
     if(e.key==='Escape'&&game.on){
-      // close whatever is open first (resumes the game); only leave game mode when nothing is
       if(!colorPickerOverlay.classList.contains('hidden')){ closeColorPicker(); return; }
       if(!welcomeOverlay.classList.contains('hidden')){ closeWelcome(); return; }
       if(settingsPanel.classList.contains('open')){ settingsPanel.classList.remove('open'); settingsPanel.setAttribute('aria-hidden','true'); return; }
       toggleGame(); return;
     }
     if(!game.on||game.paused) return;
-    const k=e.key.toLowerCase();
+    const k=keyName(e);
     if(!game.started){ if(k===' '||k==='enter'){ e.preventDefault(); startPlaying(); } return; }
     game.keys[k]=true;
     if((k===' '||k==='enter')&&game.over&&game.overT>40) resetGame();
     if(k.startsWith('arrow')||k===' ') e.preventDefault();
   });
-  window.addEventListener('keyup',e=>{ delete game.keys[e.key.toLowerCase()]; });
+  window.addEventListener('keyup',e=>{ delete game.keys[keyName(e)]; });
 
   const STEP_MS=1000/60;
   let lastNow=performance.now(), acc=0;
   function frame(now){
     now=now||performance.now();
-    // Cap the backlog so a stall (tab switch, jank) can't dump a big burst of steps
-    // into a single frame - that burst is what makes shapes look like they teleport/
-    // move "too fast" right afterwards, most noticeable on high refresh-rate phones.
     acc=Math.min(acc+(now-lastNow),STEP_MS*3); lastNow=now;
     let n=0;
     while(acc>=STEP_MS&&n++<3){ t+=STEP_MS; step(); if(game.on) gameStep(); acc-=STEP_MS; }
@@ -2311,8 +2289,7 @@
       }
     }
   }
-  // ---------- chill-mode shape dragging (mouse + touch, multi-touch aware) ----------
-  const activeDrags=new Map(); // pointerId -> drag info
+  const activeDrags=new Map();
   const DRAG_THRESH=6;
 
   window.addEventListener('pointerdown',e=>{
@@ -2354,7 +2331,6 @@
 
   window.addEventListener('resize',build);
 
-  // ---------- audio toggle UI wiring ----------
   const audioBtn = document.getElementById('audioBtn');
   if(audioBtn){
     audioBtn.addEventListener('click', ()=>{
@@ -2365,7 +2341,6 @@
     });
   }
 
-  // ---------- settings UI wiring ----------
   function recolorAll(){
     for(const n of nodes){
       n.colIndex = (Math.random()*THEME.palette.length)|0;
@@ -2411,7 +2386,6 @@
     if(cpCard) cpCard.classList.toggle('dark', isDark);
   }
 
-  // ---------- CUSTOM IN-APP COLOR PICKER MODULE ----------
   const colorPickerOverlay = document.getElementById('colorPickerOverlay');
   const cpSatValBox = document.getElementById('cpSatValBox');
   const cpSatValBg = document.getElementById('cpSatValBg');
@@ -2433,22 +2407,18 @@
     cpState.s = Math.max(0, Math.min(100, s));
     cpState.v = Math.max(0, Math.min(100, v));
 
-    // Update 2D Sat/Val Background
     cpSatValBg.style.backgroundColor = `hsl(${cpState.h}, 100%, 50%)`;
 
-    // Update Crosshair & Handle positions
     cpCrosshair.style.left = cpState.s + '%';
     cpCrosshair.style.top = (100 - cpState.v) + '%';
     cpHueHandle.style.left = (cpState.h / 360 * 100) + '%';
 
-    // Calculate current hex
     const rgbArr = hsvToRgb(cpState.h, cpState.s, cpState.v);
     const hex = rgbToHex(rgbArr);
 
     cpPreviewSwatch.style.backgroundColor = hex;
     if (updateHex) cpHexInput.value = hex.toUpperCase();
 
-    // Coalesce onChange callbacks to requestAnimationFrame to prevent drag lag
     cpPendingChangeHex = hex;
     if (!cpRafId) {
       cpRafId = requestAnimationFrame(() => {
@@ -2479,7 +2449,6 @@
     colorPickerOverlay.setAttribute('aria-hidden', 'true');
   }
 
-  // Pointer dragging logic for 2D Sat/Val box
   let isDraggingSatVal = false;
   function handleSatValPointer(e) {
     const rect = cpSatValBox.getBoundingClientRect();
@@ -2508,7 +2477,6 @@
   cpSatValBox.addEventListener('pointerup', stopSatValDrag);
   cpSatValBox.addEventListener('pointercancel', stopSatValDrag);
 
-  // Pointer dragging logic for Hue bar
   let isDraggingHue = false;
   function handleHuePointer(e) {
     const rect = cpHueBox.getBoundingClientRect();
@@ -2535,7 +2503,6 @@
   cpHueBox.addEventListener('pointerup', stopHueDrag);
   cpHueBox.addEventListener('pointercancel', stopHueDrag);
 
-  // Direct Hex Input
   cpHexInput.addEventListener('input', () => {
     let val = cpHexInput.value.trim();
     if (!val.startsWith('#')) val = '#' + val;
@@ -2546,7 +2513,6 @@
     }
   });
 
-  // Quick Swatches
   document.querySelectorAll('.cpQuickSwatch').forEach(btn => {
     btn.addEventListener('click', () => {
       const hex = btn.dataset.hex;
@@ -2556,7 +2522,6 @@
     });
   });
 
-  // Picker Controls
   cpCloseBtn.addEventListener('click', () => {
     if (typeof cpState.onChange === 'function') cpState.onChange(cpState.initialHex);
     closeColorPicker();
@@ -2567,7 +2532,6 @@
   });
   cpApplyBtn.addEventListener('click', closeColorPicker);
 
-  // ---------- SYNC INPUTS WITH CUSTOM PICKER ----------
   function syncInputs(){
     bgSwatch.style.backgroundColor = THEME.bg;
     zebraSwatch.style.backgroundColor = THEME.zebra;
@@ -2622,7 +2586,6 @@
     recolorAll();
   }
 
-  // ---------- MY PRESETS (user-saved color looks) ----------
   const MY_PRESETS_KEY='imperfection_my_presets';
   const MAX_MY_PRESETS=24;
   const HEX_OK=h=>typeof h==='string'&&/^#[0-9a-f]{6}$/i.test(h);
@@ -2695,7 +2658,7 @@
     }
     const entry={name,bg:THEME.bg,zebra:THEME.zebra,outline:THEME.outline,palette:THEME.palette.slice()};
     const existing=arr.findIndex(p=>p.name.toLowerCase()===name.toLowerCase());
-    if(existing>=0) arr[existing]=entry;               // same name = update it
+    if(existing>=0) arr[existing]=entry;
     else{
       if(arr.length>=MAX_MY_PRESETS){
         myPresetName.value=''; myPresetName.placeholder=tr('full');
@@ -2720,8 +2683,6 @@
   });
   renderMyPresets();
 
-  // ---------- palette styles ----------
-  // 5 distinct shape-color styles instead of just monochrome/rainbow.
   function generateRainbowPalette(){
     const baseHue=Math.random()*360;
     const arr=[];
@@ -2756,8 +2717,6 @@
     return arr;
   }
 
-  // Fully independent random hues per swatch (not evenly spaced like the rainbow),
-  // always saturated enough to stay away from black and pure gray.
   function generateVividPalette(){
     const arr=[];
     for(let i=0;i<8;i++){
@@ -2768,8 +2727,6 @@
     return arr;
   }
 
-  // Two-color gradient spread evenly across the 8 palette slots. Blended along the hue wheel
-  // (not in RGB) so the middle never washes out to gray, even for far-apart hues.
   function generateGradientPalette(){
     const h1=Math.random()*360, gap=rnd(60,150)*(Math.random()<.5?-1:1);
     const s1=rnd(60,90)/100, s2=rnd(60,90)/100, l1=rnd(45,62)/100, l2=rnd(45,62)/100;
@@ -2834,7 +2791,6 @@
     });
   });
 
-  // ---------- welcome overlay ----------
   const welcomeOverlay=document.getElementById('welcomeOverlay');
   const welcomeCloseBtn=document.getElementById('welcomeCloseBtn');
   const dontShowAgain=document.getElementById('dontShowAgain');
@@ -2854,7 +2810,6 @@
     }
   }
 
-  // Always show welcome modal on open
   openWelcome();
 
   welcomeCloseBtn.addEventListener('click',closeWelcome);
@@ -2873,7 +2828,6 @@
     btn.addEventListener('click',()=>applyPreset(btn.dataset.preset));
   });
 
-  // ---------- apply icons + language ----------
   document.querySelectorAll('[data-icon]').forEach(el=>{ el.innerHTML=ICONS[el.dataset.icon]||''; });
   function applyLang(){
     document.documentElement.lang=LANG;
@@ -2894,7 +2848,6 @@
   document.querySelectorAll('.langBtn').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.lang)));
   applyLang();
 
-  // Restore the saved look (preset + shape type); otherwise randomize on first load
   if(loadCfg()){ syncInputs(); applyBackground(); } else randomizeAllColors();
   build(); frame();
 })();
