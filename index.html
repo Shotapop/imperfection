@@ -15,7 +15,7 @@
   .zebra::after{
     content:'';position:absolute;inset:0;
     background-color:var(--zebra-col,#2b2a55);
-    opacity:0.16;
+    opacity:var(--zebra-op,0.16);
     -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='60' viewBox='0 0 80 60'%3E%3Cpath d='M0 30 C13 20 27 20 40 30 S67 40 80 30' fill='none' stroke='black' stroke-width='10' stroke-linecap='round'/%3E%3C/svg%3E");
     mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='60' viewBox='0 0 80 60'%3E%3Cpath d='M0 30 C13 20 27 20 40 30 S67 40 80 30' fill='none' stroke='black' stroke-width='10' stroke-linecap='round'/%3E%3C/svg%3E");
     -webkit-mask-repeat:repeat;mask-repeat:repeat;
@@ -492,6 +492,104 @@
     cursor:pointer;background:transparent;color:inherit;font-family:inherit;
   }
   .langBtn.active{background:var(--shine),#ff8fb8;color:#2b2a55;box-shadow:0 2px 0 var(--ui-ink)}
+
+  /* ===== Neon retro UI (matches screenshot) ===== */
+  :root{--ui-ink:#000;--bev-hi:#fff;--bev-lo:#a9a9a9;--cream:#fafacc;--lav:#cfc9fb;--pinkTxt:#c2358f;--mute:#6a5fb0}
+  .zebra::before{
+    content:'';position:absolute;inset:0;opacity:var(--star-op,0);
+    background-size:380px 380px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='380' height='380'%3E%3Cg fill='white' fill-opacity='.85'%3E%3Ccircle cx='40' cy='60' r='1.6'/%3E%3Ccircle cx='150' cy='20' r='1.3'/%3E%3Ccircle cx='260' cy='110' r='1.6'/%3E%3Ccircle cx='330' cy='40' r='1.3'/%3E%3Ccircle cx='90' cy='210' r='1.3'/%3E%3Ccircle cx='210' cy='270' r='1.6'/%3E%3Ccircle cx='340' cy='300' r='1.3'/%3E%3Ccircle cx='30' cy='340' r='1.6'/%3E%3Ccircle cx='170' cy='150' r='1.3'/%3E%3Ccircle cx='100' cy='130' r='1.3'/%3E%3Ccircle cx='300' cy='250' r='1.6'/%3E%3Ccircle cx='190' cy='330' r='1.3'/%3E%3Ccircle cx='240' cy='40' r='1.6'/%3E%3Ccircle cx='15' cy='180' r='1.3'/%3E%3C/g%3E%3Cg fill-opacity='.6'%3E%3Cpath fill='%23b44dff' transform='translate(300 190) scale(.65)' d='M0-11L3-3 11 0 3 3 0 11-3 3-11 0-3-3z'/%3E%3Cpath fill='%232ee6ff' transform='translate(120 90) scale(.65)' d='M0-10L3-3 10 0 3 3 0 10-3 3-10 0-3-3z'/%3E%3Cpath fill='%23ffe14d' transform='translate(60 280) scale(.65)' d='M0-9L2.5-2.5 9 0 2.5 2.5 0 9-2.5 2.5-9 0-2.5-2.5z'/%3E%3Cpath fill='%23ffffff' transform='translate(230 340) scale(.65)' d='M0-9L2.5-2.5 9 0 2.5 2.5 0 9-2.5 2.5-9 0-2.5-2.5z'/%3E%3Cpath fill='%23b44dff' transform='translate(350 120) scale(.65)' d='M0-8L2-2 8 0 2 2 0 8-2 2-8 0-2-2z'/%3E%3Cpath fill='%232ee6ff' transform='translate(200 200) scale(.55)' d='M0-9L2.5-2.5 9 0 2.5 2.5 0 9-2.5 2.5-9 0-2.5-2.5z'/%3E%3Cpath fill='%23ffe14d' transform='translate(20 40) scale(.55)' d='M0-9L2.5-2.5 9 0 2.5 2.5 0 9-2.5 2.5-9 0-2.5-2.5z'/%3E%3Cpath fill='%23b44dff' transform='translate(150 290) scale(.55)' d='M0-9L2.5-2.5 9 0 2.5 2.5 0 9-2.5 2.5-9 0-2.5-2.5z'/%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* top buttons */
+  #uiRoot{gap:14px}
+  #gearBtn,#infoBtn,#audioBtn,#gameBtn{
+    width:52px;height:52px;border-radius:10px;
+    border:3px solid var(--bev-hi);border-right-color:var(--bev-lo);border-bottom-color:var(--bev-lo);
+    background:var(--bc);color:#000;box-shadow:4px 4px 0 #000;
+    transition:transform .1s ease,box-shadow .1s ease;
+  }
+  #gearBtn{--bc:#ff66ff}#infoBtn{--bc:#33ffff}#audioBtn{--bc:#73ff2e}#gameBtn{--bc:#ffea00}
+  #gameBtn.on{--bc:#ff4d6d;background:#ff4d6d}
+  #gearBtn:hover,#infoBtn:hover,#audioBtn:hover,#gameBtn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 #000}
+  #gearBtn:active,#infoBtn:active,#audioBtn:active,#gameBtn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 #000}
+  #uiRoot>button svg{width:26px;height:26px}
+
+  /* settings panel */
+  #settingsPanel,#settingsPanel.dark{
+    --panel-bg:var(--lav);--panel-text:#000;--field-bg:var(--cream);--swatch-ring:transparent;--swatch-ring-hover:transparent;
+    top:66px;padding:0 14px 16px;
+    background:var(--lav);color:#000;
+    border:5px solid #ff00ff;border-radius:0;clip-path:none;
+    box-shadow:8px 8px 0 #000;backdrop-filter:none;
+  }
+  #settingsPanel .panelHead{
+    margin:0 -14px 12px;padding:13px 14px;font-size:17px;font-weight:600;color:#fff;
+    background:linear-gradient(90deg,#001a85,#1a86e0);
+  }
+  #settingsPanel #closeBtn{color:#fff;opacity:.95}
+  #settingsPanel .sectionLabel,#settingsPanel .paletteLabel{color:var(--pinkTxt);font-size:15px;font-weight:800;opacity:1;margin:12px 0 8px}
+  #settingsPanel .hint,#settingsPanel .myPresetEmpty{color:var(--mute);opacity:1;font-size:12.5px}
+  #settingsPanel .presetBtn,#settingsPanel .styleBtn:not(.active){
+    background:var(--cream);color:#000;font-size:13px;font-weight:700;padding:10px 4px;border-radius:0;
+    border:3px solid var(--bev-hi);border-right-color:var(--bev-lo);border-bottom-color:var(--bev-lo);
+    box-shadow:3px 3px 0 #000;
+  }
+  #settingsPanel .presetBtn:hover,#settingsPanel .styleBtn:not(.active):hover{
+    background:#fff8b0;filter:none;transform:translate(-1px,-1px);box-shadow:4px 4px 0 #000;
+  }
+  #settingsPanel .presetBtn:active,#settingsPanel .styleBtn:not(.active):active{transform:translate(2px,2px);box-shadow:1px 1px 0 #000}
+  #settingsPanel .styleBtn.active,#settingsPanel.dark .styleBtn.active{
+    background:#ffee00;color:#000;font-size:13px;font-weight:700;padding:10px 4px;border-radius:0;
+    border:3px solid var(--bev-hi);border-right-color:var(--bev-lo);border-bottom-color:var(--bev-lo);
+    box-shadow:3px 3px 0 #000;
+  }
+  #settingsPanel .randBtn{
+    background:var(--bc);color:#000;font-size:14px;font-weight:700;padding:10px 6px;border-radius:0;
+    border:3px solid var(--bev-hi);border-right-color:var(--bev-lo);border-bottom-color:var(--bev-lo);
+    box-shadow:4px 4px 0 #000;
+  }
+  #settingsPanel .randBtn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 #000}
+  #settingsPanel .randBtn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #000}
+  #randAllBtn{--bc:#ff66ff}#randShapesBtn{--bc:#66e5ff}#myPresetSave{--bc:#66ff66}
+  #settingsPanel #myPresetName{
+    background:#fff;color:#000;border:3px solid #333;border-radius:0;padding:9px 10px;font-size:13px;
+  }
+  #myPresetName::placeholder{color:#777}
+  #settingsPanel #myPresetName:focus{box-shadow:none;border-color:#ff00ff}
+  #settingsPanel .myPresetApply,#settingsPanel .myPresetDel{
+    background:var(--cream);color:#000;border-radius:0;
+    border:3px solid var(--bev-hi);border-right-color:var(--bev-lo);border-bottom-color:var(--bev-lo);
+    box-shadow:3px 3px 0 #000;
+  }
+  #settingsPanel .myPresetDots i{box-shadow:0 0 0 1.5px var(--cream)}
+  #settingsPanel .fieldRow{background:var(--cream);color:#000;border-radius:16px;padding:14px 16px;font-size:17px;font-weight:500;margin-bottom:10px}
+  #settingsPanel .swatchBtn{border:3px solid #0a0a70;border-radius:5px;box-shadow:0 3px 0 #1a3a9a}
+  #settingsPanel .swatchBtn:hover{transform:translateY(-1px);box-shadow:0 4px 0 #1a3a9a}
+  #settingsPanel .fieldRow .swatchBtn{width:36px;height:36px}
+
+  /* welcome card & color picker share the same look */
+  #welcomeCard,#welcomeCard.dark,#colorPickerCard,#colorPickerCard.dark{
+    background:var(--lav);color:#000;border:5px solid #ff00ff;border-radius:0;clip-path:none;
+    box-shadow:8px 8px 0 #000;
+  }
+  #welcomeCard p,#welcomeCard li,#welcomeCard h3{opacity:1}
+  #welcomeCard h3{color:var(--pinkTxt);font-weight:800}
+  #welcomeCard .langSwitch{border-color:#000;background:var(--cream)}
+  #welcomeCard .langBtn.active{background:#ffee00;color:#000;box-shadow:none}
+  #playBtn,#welcomeCloseBtn,#colorPickerCard .cpBtnApply,#colorPickerCard .cpBtnCancel{
+    background:var(--bc,#ffee00);color:#000;border-radius:0;
+    border:3px solid var(--bev-hi);border-right-color:var(--bev-lo);border-bottom-color:var(--bev-lo);
+    box-shadow:4px 4px 0 #000;
+  }
+  #welcomeCloseBtn{--bc:#66ff66}
+  #colorPickerCard .cpBtnApply{--bc:#66ff66}
+  #colorPickerCard .cpBtnCancel{--bc:var(--cream)}
+  #playBtn:hover,#welcomeCloseBtn:hover,#colorPickerCard .cpBtnApply:hover,#colorPickerCard .cpBtnCancel:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 #000}
+  #playBtn:active,#welcomeCloseBtn:active,#colorPickerCard .cpBtnApply:active,#colorPickerCard .cpBtnCancel:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #000}
+  #colorPickerCard .cpHexInput,#colorPickerCard.dark .cpHexInput{background:var(--cream);border-radius:0;border:3px solid #333;color:#000}
+  #gameStartHint,#gameStartBest{color:#fff;background:rgba(0,0,0,.45)}
+  #gameStartBest{background:none}
 </style>
 </head>
 <body>
@@ -751,10 +849,10 @@
 
   const PRESETS={
     colorful:{
-      bg:'#f6f3e9',
-      zebra:'#2b2a55',
-      outline:'#2b2a55',
-      palette:['#ff2e9a','#ff3b3b','#ff7a1a','#ffe14d','#a6ff3d','#2ee6ff','#4d7cff','#b44dff']
+      bg:'#00003d',
+      zebra:'#3333ff',
+      outline:'#ffffff',
+      palette:['#ff2e9a','#ff0000','#ff8000','#ffea00','#33ff33','#00e5ff','#3366ff','#cc33ff']
     },
     pastel:{
       bg:'#faf3f9',
@@ -838,6 +936,10 @@
     if(zebraEl){
       zebraEl.style.backgroundColor=THEME.bg;
       zebraEl.style.setProperty('--zebra-col', THEME.zebra);
+      const [br,bgc,bb]=hexToRgbArr(THEME.bg);
+      const darkBg=(0.2126*br+0.7152*bgc+0.0722*bb)<130;
+      zebraEl.style.setProperty('--zebra-op', darkBg?0.5:0.16);
+      zebraEl.style.setProperty('--star-op', darkBg?0.5:0);
     }
     if(typeof updatePanelTheme==='function') updatePanelTheme();
     saveCfg();
@@ -1681,7 +1783,7 @@
 
     ctx.save();
     ctx.translate(cx,cy); ctx.rotate(rot); ctx.scale(scaleX,scaleY);
-    paintShape(s.kind,r,col,4*OL,`rgba(${col[0]|0},${col[1]|0},${col[2]|0},.4)`,(e*14)+(ce*24));
+    paintShape(s.kind,r,col,4*OL,`rgba(${col[0]|0},${col[1]|0},${col[2]|0},.9)`,22+(e*18)+(ce*26));
     ctx.restore();
   }
 
@@ -2376,7 +2478,6 @@
   const paletteRow=document.getElementById('paletteRow');
 
   function updatePanelTheme(){
-    document.documentElement.style.setProperty('--ui-ink',THEME.outline);
     const [r,g,b]=hexToRgbArr(THEME.bg);
     const lum=0.2126*r+0.7152*g+0.0722*b;
     const isDark = lum < 130;
@@ -2848,7 +2949,7 @@
   document.querySelectorAll('.langBtn').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.lang)));
   applyLang();
 
-  if(loadCfg()){ syncInputs(); applyBackground(); } else randomizeAllColors();
+  if(loadCfg()){ syncInputs(); applyBackground(); } else applyPreset('colorful');
   build(); frame();
 })();
 </script>
