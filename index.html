@@ -624,6 +624,33 @@
     }
     #settingsPanel .presetBtn,#settingsPanel .styleBtn{font-size:12px;padding:10px 2px}
   }
+
+  /* ===== Privacy note & legal footer ===== */
+  .legalFoot{
+    display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;
+    margin-top:16px;padding-top:12px;border-top:2px dashed rgba(0,0,0,.25);
+    font-size:12px;color:var(--mute);
+  }
+  .legalExtra a{color:inherit}
+  .linkBtn{
+    border:none;background:none;padding:0;cursor:pointer;font:inherit;font-weight:700;
+    color:var(--pinkTxt);text-decoration:underline;text-underline-offset:2px;
+  }
+  .linkBtn:hover{color:#000}
+  #privacyView a{color:var(--pinkTxt);font-weight:700}
+  .legalUpdated{font-size:12px !important;color:var(--mute);margin-top:12px}
+  .clearBtn,#privacyBackBtn{
+    font:inherit;font-size:13px;font-weight:700;cursor:pointer;color:#000;border-radius:0;
+    padding:9px 14px;margin-top:8px;
+    border:3px solid var(--bev-hi);border-right-color:var(--bev-lo);border-bottom-color:var(--bev-lo);
+    box-shadow:4px 4px 0 #000;transition:transform .1s ease,box-shadow .1s ease;
+  }
+  .clearBtn{background:#ff9eb8}
+  .clearBtn.armed{background:#ff4d6d;color:#fff}
+  #privacyBackBtn{background:#66ff66;padding:11px 22px;font-size:13.5px}
+  .clearBtn:hover,#privacyBackBtn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 #000}
+  .clearBtn:active,#privacyBackBtn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #000}
+  @media (max-width:600px){ #privacyBackBtn{width:100%;padding:13px 22px} }
 </style>
 </head>
 <body>
@@ -740,6 +767,7 @@
         <button type="button" class="langBtn" data-lang="en">English</button>
         <button type="button" class="langBtn" data-lang="uk">Українська</button>
       </div>
+      <div id="welcomeMain">
       <h2 id="welcomeTitle" data-i18n="w_title"></h2>
       <p data-i18n="w_intro"></p>
 
@@ -765,6 +793,32 @@
       <div class="welcomeFoot">
         <label class="dontShowRow"><input type="checkbox" id="dontShowAgain"> <span data-i18n="dontShow"></span></label>
         <button id="welcomeCloseBtn" data-i18n="letsgo"></button>
+      </div>
+      <div class="legalFoot">
+        <button type="button" class="linkBtn" id="privacyLink" data-i18n="p_link"></button>
+        <span class="legalExtra" id="contactLine" hidden></span>
+        <span class="legalExtra" id="copyLine" hidden></span>
+      </div>
+      </div>
+
+      <div id="privacyView" hidden>
+        <h2 data-i18n="p_title"></h2>
+        <p data-i18n="p_intro"></p>
+        <h3 data-i18n="p_h1"></h3>
+        <p data-i18n="p_store"></p>
+        <h3 data-i18n="p_h2"></h3>
+        <p data-i18n="p_none"></p>
+        <h3 data-i18n="p_h3"></h3>
+        <p data-i18n="p_host"></p>
+        <h3 data-i18n="p_h4"></h3>
+        <p data-i18n="p_clear"></p>
+        <button type="button" id="clearDataBtn" class="clearBtn" data-i18n="clearBtn"></button>
+        <p id="privacyContact" hidden></p>
+        <p class="legalUpdated" data-i18n="p_updated"></p>
+        <div class="welcomeFoot">
+          <span></span>
+          <button type="button" id="privacyBackBtn" data-i18n="back"></button>
+        </div>
       </div>
     </div>
   </div>
@@ -793,6 +847,10 @@
     play:svgI('<path d="M8 5v14l11-7z" fill="currentColor"/>'),
     globe:svgI('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3.2 3.5 3.2 14.5 0 18M12 3c-3.2 3.5-3.2 14.5 0 18"/>')
   };
+
+  // ===== Fill these in (leave '' to hide) =====
+  const SITE_CONTACT='';   // e.g. 'hello@yourdomain.com' (shown in the footer and the privacy note)
+  const SITE_OWNER='';     // e.g. a nickname or your name, shown as "© 2026 ..."
 
   const LANG_KEY='imperfection_lang';
   const I18N={
@@ -834,7 +892,20 @@
       w_colors:'<b>Background, pattern, outline</b> — pick those colors yourself.',
       w_shapecol:'<b>Shape colors</b> — the set of colors the shapes draw from.',
       w_outro:'Set it up however feels right, then let your hands wander.',
-      dontShow:"Don't show this again", letsgo:"Let's go"
+      dontShow:"Don't show this again", letsgo:"Let's go",
+      p_link:'Privacy', p_title:'Privacy', back:'Back',
+      p_intro:"Short version: this site doesn't collect anything about you.",
+      p_h1:'What gets saved',
+      p_store:"To remember your settings, the site saves a few things in your browser's local storage, on your device only: your language, your colors and shape style, your saved presets, your best game score, and whether you've hidden the welcome card. None of it is sent anywhere, and I can't see it.",
+      p_h2:"What isn't here",
+      p_none:'No accounts, no cookies, no analytics or tracking, no ads, and nothing loaded from other websites.',
+      p_h3:'Hosting',
+      p_host:"Like any website, the hosting provider may keep standard technical logs (such as IP address and browser type) to keep the site running. That's covered by the provider's own privacy policy, not by this page.",
+      p_h4:'Deleting your data',
+      p_clear:"Clear this site's data in your browser settings, or use the button below. Everything goes back to the defaults.",
+      clearBtn:'Delete my saved data', clearConfirm:'Tap again to confirm',
+      p_contact:'Questions? Write to {email}.', contactL:'Contact',
+      p_updated:'Last updated: November 2026'
     },
     uk:{
       gameTitle:'Ігровий режим', gameAria:'Перемкнути ігровий режим', backChill:'Назад до спокійного режиму',
@@ -874,7 +945,20 @@
       w_colors:'<b>Фон, візерунок, контур</b> — обери ці кольори самостійно.',
       w_shapecol:'<b>Кольори фігур</b> — набір, з якого фігури беруть свої відтінки.',
       w_outro:'Налаштуй усе так, як тобі подобається, а тоді просто дай рукам блукати.',
-      dontShow:'Більше не показувати', letsgo:'Поїхали'
+      dontShow:'Більше не показувати', letsgo:'Поїхали',
+      p_link:'Конфіденційність', p_title:'Конфіденційність', back:'Назад',
+      p_intro:'Коротко: цей сайт нічого про тебе не збирає.',
+      p_h1:'Що зберігається',
+      p_store:'Щоб пам’ятати твої налаштування, сайт зберігає кілька речей у локальному сховищі браузера — лише на твоєму пристрої: мову, кольори та стиль фігур, збережені пресети, найкращий рахунок у грі та те, чи ти приховав(-ла) вітальне вікно. Нічого з цього нікуди не надсилається, і я цього не бачу.',
+      p_h2:'Чого тут немає',
+      p_none:'Жодних акаунтів, cookie, аналітики чи відстеження, реклами — і нічого не завантажується з інших сайтів.',
+      p_h3:'Хостинг',
+      p_host:'Як і будь-який сайт, хостинг-провайдер може зберігати стандартні технічні журнали (наприклад, IP-адресу й тип браузера), щоб сайт працював. Це регулює його власна політика конфіденційності, а не ця сторінка.',
+      p_h4:'Як видалити свої дані',
+      p_clear:'Очисти дані цього сайту в налаштуваннях браузера або натисни кнопку нижче — усе повернеться до початкових налаштувань.',
+      clearBtn:'Видалити мої збережені дані', clearConfirm:'Натисни ще раз, щоб підтвердити',
+      p_contact:'Питання? Пиши на {email}.', contactL:'Контакт',
+      p_updated:'Оновлено: листопад 2026'
     }
   };
   let LANG='en';
@@ -2967,23 +3051,64 @@
   const infoBtn=document.getElementById('infoBtn');
   const WELCOME_KEY='imperfection_welcome_seen';
 
-  function openWelcome(){
+  const welcomeMain=document.getElementById('welcomeMain');
+  const privacyView=document.getElementById('privacyView');
+  const clearDataBtn=document.getElementById('clearDataBtn');
+  let clearArmed=false, clearTimer=null;
+
+  function showWelcomeView(privacy){
+    welcomeMain.hidden=!!privacy;
+    privacyView.hidden=!privacy;
+    welcomeCard.scrollTop=0;
+    disarmClear();
+  }
+  function disarmClear(){
+    clearArmed=false; clearTimeout(clearTimer);
+    clearDataBtn.classList.remove('armed'); clearDataBtn.textContent=tr('clearBtn');
+  }
+
+  function openWelcome(privacy){
     updatePanelTheme();
+    showWelcomeView(privacy);
     welcomeOverlay.classList.remove('hidden');
     welcomeOverlay.setAttribute('aria-hidden','false');
   }
   function closeWelcome(){
     welcomeOverlay.classList.add('hidden');
     welcomeOverlay.setAttribute('aria-hidden','true');
-    if(dontShowAgain.checked){
-      try{ localStorage.setItem(WELCOME_KEY,'1'); }catch(e){}
-    }
+    try{
+      if(dontShowAgain.checked) localStorage.setItem(WELCOME_KEY,'1');
+      else localStorage.removeItem(WELCOME_KEY);
+    }catch(e){}
   }
 
-  openWelcome();
+  // Only show the welcome card on load if the visitor hasn't opted out
+  let welcomeSeen=false;
+  try{ welcomeSeen=localStorage.getItem(WELCOME_KEY)==='1'; }catch(e){}
+  dontShowAgain.checked=welcomeSeen;
+  if(welcomeSeen){
+    welcomeOverlay.classList.add('hidden');
+    welcomeOverlay.setAttribute('aria-hidden','true');
+  } else {
+    openWelcome();
+  }
+
+  document.getElementById('privacyLink').addEventListener('click',()=>showWelcomeView(true));
+  document.getElementById('privacyBackBtn').addEventListener('click',()=>showWelcomeView(false));
+  clearDataBtn.addEventListener('click',()=>{
+    if(!clearArmed){
+      clearArmed=true; clearDataBtn.classList.add('armed'); clearDataBtn.textContent=tr('clearConfirm');
+      clearTimer=setTimeout(disarmClear,4000);
+      return;
+    }
+    try{
+      [LANG_KEY,SAVE_KEY,BEST_KEY,MY_PRESETS_KEY,WELCOME_KEY].forEach(k=>localStorage.removeItem(k));
+    }catch(e){}
+    location.reload();
+  });
 
   welcomeCloseBtn.addEventListener('click',closeWelcome);
-  infoBtn.addEventListener('click',openWelcome);
+  infoBtn.addEventListener('click',()=>openWelcome(false));
   welcomeOverlay.addEventListener('click',e=>{ if(e.target===welcomeOverlay) closeWelcome(); });
 
   gearBtn.addEventListener('click',()=>{
@@ -3010,6 +3135,25 @@
     audioBtn.title=soundMuted?tr('soundOff'):tr('soundOn');
     gameStartBest.textContent=game.best?(tr('bestL')+' '+game.best):'';
     renderMyPresets();
+    renderLegal();
+  }
+  function mailLink(){
+    const a=document.createElement('a'); a.href='mailto:'+SITE_CONTACT; a.textContent=SITE_CONTACT; return a;
+  }
+  function renderLegal(){
+    const contactLine=document.getElementById('contactLine');
+    const copyLine=document.getElementById('copyLine');
+    const privacyContact=document.getElementById('privacyContact');
+    contactLine.hidden=privacyContact.hidden=!SITE_CONTACT;
+    contactLine.textContent=''; privacyContact.textContent='';
+    if(SITE_CONTACT){
+      contactLine.append(tr('contactL')+': ', mailLink());
+      const [before,after]=tr('p_contact').split('{email}');
+      privacyContact.append(before, mailLink(), after||'');
+    }
+    copyLine.hidden=!SITE_OWNER;
+    copyLine.textContent=SITE_OWNER?('© '+new Date().getFullYear()+' '+SITE_OWNER):'';
+    if(clearDataBtn) disarmClear();
   }
   function setLang(l){
     LANG=l; try{ localStorage.setItem(LANG_KEY,l); }catch(e){}
