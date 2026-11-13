@@ -302,6 +302,10 @@
     transform:translate(-50%,-50%);pointer-events:none;
     box-shadow:0 0 0 1px rgba(0,0,0,0.4),0 2px 6px rgba(0,0,0,0.3);
   }
+  .cpBlocked{
+    position:absolute;inset:0;pointer-events:none;
+    background:repeating-linear-gradient(135deg,rgba(255,255,255,.22) 0 4px,rgba(0,0,0,.35) 4px 8px);
+  }
   .cpHueBox{
     position:relative;width:100%;height:20px;border-radius:10px;
     background:linear-gradient(to right,#f00 0%,#ff0 17%,#0f0 33%,#0ff 50%,#00f 67%,#f0f 83%,#f00 100%);
@@ -590,6 +594,36 @@
   #colorPickerCard .cpHexInput,#colorPickerCard.dark .cpHexInput{background:var(--cream);border-radius:0;border:3px solid #333;color:#000}
   #gameStartHint,#gameStartBest{color:#fff;background:rgba(0,0,0,.45)}
   #gameStartBest{background:none}
+
+  /* ===== Settings panel layout fix ===== */
+  #settingsPanel,#settingsPanel.dark{
+    width:340px;top:70px;
+    max-height:calc(100vh - 70px - 18px - 24px - env(safe-area-inset-top,0px));
+    max-height:calc(100dvh - 70px - 18px - 24px - env(safe-area-inset-top,0px));
+    overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
+    scrollbar-color:rgba(0,0,0,.35) transparent;
+  }
+  #settingsPanel::-webkit-scrollbar-track{margin:0}
+  #settingsPanel::-webkit-scrollbar-thumb,#settingsPanel.dark::-webkit-scrollbar-thumb{background-color:rgba(0,0,0,.35)}
+  #settingsPanel .panelHead{position:sticky;top:0;z-index:2}
+  #settingsPanel .presetRow,#settingsPanel .randomRow,#settingsPanel .styleRow{gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  #settingsPanel .presetBtn,#settingsPanel .styleBtn,#settingsPanel .randBtn{
+    flex:1 1 0;min-width:0;white-space:normal;line-height:1.2;
+  }
+  #settingsPanel .randBtn{font-size:13px}
+  #settingsPanel #myPresetSave{flex:0 0 auto}
+  #settingsPanel .myPresetList{gap:8px}
+  #settingsPanel .fieldRow{padding:10px 14px;font-size:15px;margin-bottom:8px}
+  #settingsPanel .fieldRow .swatchBtn{width:32px;height:32px}
+  #settingsPanel .paletteRow{gap:10px;padding-bottom:4px}
+  @media (max-width:600px){
+    #settingsPanel,#settingsPanel.dark{
+      width:min(320px,calc(100vw - 24px));top:66px;
+      max-height:calc(100vh - 66px - 12px - 16px - env(safe-area-inset-top,0px));
+      max-height:calc(100dvh - 66px - 12px - 16px - env(safe-area-inset-top,0px));
+    }
+    #settingsPanel .presetBtn,#settingsPanel .styleBtn{font-size:12px;padding:10px 2px}
+  }
 </style>
 </head>
 <body>
@@ -665,6 +699,7 @@
         <div class="cpSatValBg" id="cpSatValBg"></div>
         <div class="cpSatValWhite"></div>
         <div class="cpSatValBlack"></div>
+        <div class="cpBlocked" id="cpBlocked"></div>
         <div class="cpCrosshair" id="cpCrosshair"></div>
       </div>
       <div class="cpHueBox" id="cpHueBox">
@@ -679,7 +714,7 @@
         <button class="cpQuickSwatch" style="background:#2ee6ff" data-hex="#2ee6ff"></button>
         <button class="cpQuickSwatch" style="background:#4d7cff" data-hex="#4d7cff"></button>
         <button class="cpQuickSwatch" style="background:#b44dff" data-hex="#b44dff"></button>
-        <button class="cpQuickSwatch" style="background:#ffffff" data-hex="#ffffff"></button>
+        <button class="cpQuickSwatch" style="background:#fdf6ff" data-hex="#fdf6ff"></button>
       </div>
 
   
@@ -851,7 +886,7 @@
     colorful:{
       bg:'#00003d',
       zebra:'#3333ff',
-      outline:'#ffffff',
+      outline:'#fbf8ff',
       palette:['#ff2e9a','#ff0000','#ff8000','#ffea00','#33ff33','#00e5ff','#3366ff','#cc33ff']
     },
     pastel:{
@@ -880,10 +915,29 @@
     const num=parseInt(hex,16); const n=isNaN(num)?0x888888:num;
     return [(n>>16)&255,(n>>8)&255,n&255];
   }
+  // Allowed-color rules (HSV, 0-100). Dark colors are fine; only near-black and dull grays are blocked.
+  const CP_V_MIN=12, CP_V_LIGHT=88, CP_S_WHITE=2.5;
+  function cpMinSat(v){
+    if(v>=CP_V_LIGHT) return CP_S_WHITE;     // pure white / near-white blocked (faint tint required)
+    if(v>=60) return 12;                      // mid grays blocked
+    return 12+(60-Math.max(v,CP_V_MIN))/(60-CP_V_MIN)*28; // darker -> needs more color
+  }
+  function clampSV(s,v){
+    v=Math.max(v,CP_V_MIN);
+    s=Math.max(s,cpMinSat(v));
+    return [Math.min(100,s),Math.min(100,v)];
+  }
   function ensureNotBlack(hex, fallback){
     const [r,g,b]=hexToRgbArr(hex);
-    const lum=0.2126*r+0.7152*g+0.0722*b;
-    return lum<30 ? (fallback||'#8a5fd6') : hex;
+    let [h,sat,val]=rgbToHsv(r,g,b);
+    const TOL=0.8;
+    if(val>=CP_V_MIN-TOL && sat>=cpMinSat(val)-TOL) return hex;
+    if(sat<1 || val<1){
+      const fb=hexToRgbArr(fallback||'#8a5fd6'), fh=rgbToHsv(fb[0],fb[1],fb[2]);
+      h=fh[0]; if(val<1) sat=Math.max(sat,fh[1]);
+    }
+    [sat,val]=clampSV(sat,val);
+    return rgbToHex(hsvToRgb(h,sat,val));
   }
   function rgbToHex(arr){
     return '#'+arr.map(v=>{
@@ -2505,8 +2559,9 @@
 
   function setPickerColor(h, s, v, updateHex = true) {
     cpState.h = Math.max(0, Math.min(360, h));
-    cpState.s = Math.max(0, Math.min(100, s));
-    cpState.v = Math.max(0, Math.min(100, v));
+    const reqS = Math.max(0, Math.min(100, s)), reqV = Math.max(0, Math.min(100, v));
+    [cpState.s, cpState.v] = clampSV(reqS, reqV);
+    if (Math.abs(cpState.s - reqS) > 0.01 || Math.abs(cpState.v - reqV) > 0.01) updateHex = true;
 
     cpSatValBg.style.backgroundColor = `hsl(${cpState.h}, 100%, 50%)`;
 
@@ -2548,6 +2603,23 @@
   function closeColorPicker() {
     colorPickerOverlay.classList.add('hidden');
     colorPickerOverlay.setAttribute('aria-hidden', 'true');
+  }
+
+  // Build the hatched "not allowed" zone (x = saturation, y = 100 - value)
+  (function(){
+    const pts=[[0,0],[CP_S_WHITE,0],[CP_S_WHITE,100-CP_V_LIGHT],[cpMinSat(CP_V_LIGHT-0.01),100-CP_V_LIGHT]];
+    for(let v=60; v>=CP_V_MIN; v-=4) pts.push([cpMinSat(v),100-v]);
+    pts.push([cpMinSat(CP_V_MIN),100-CP_V_MIN],[100,100-CP_V_MIN],[100,100],[0,100]);
+    document.getElementById('cpBlocked').style.clipPath='polygon('+pts.map(p=>p[0].toFixed(1)+'% '+p[1].toFixed(1)+'%').join(',')+')';
+  })();
+
+  // For black/gray inputs keep the current hue (and saturation for black) so it becomes the darkest shade of it
+  function hsvFromHexKeepHue(hex){
+    const rgbArr = hexToRgbArr(hex);
+    let [h,s,v] = rgbToHsv(rgbArr[0], rgbArr[1], rgbArr[2]);
+    if (s < 1 || v < 1) h = cpState.h;
+    if (v < CP_V_MIN) s = Math.max(s, cpState.s);
+    return [h,s,v];
   }
 
   let isDraggingSatVal = false;
@@ -2608,17 +2680,14 @@
     let val = cpHexInput.value.trim();
     if (!val.startsWith('#')) val = '#' + val;
     if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
-      const rgbArr = hexToRgbArr(val);
-      const hsv = rgbToHsv(rgbArr[0], rgbArr[1], rgbArr[2]);
+      const hsv = hsvFromHexKeepHue(val);
       setPickerColor(hsv[0], hsv[1], hsv[2], false);
     }
   });
 
   document.querySelectorAll('.cpQuickSwatch').forEach(btn => {
     btn.addEventListener('click', () => {
-      const hex = btn.dataset.hex;
-      const rgbArr = hexToRgbArr(hex);
-      const hsv = rgbToHsv(rgbArr[0], rgbArr[1], rgbArr[2]);
+      const hsv = hsvFromHexKeepHue(btn.dataset.hex);
       setPickerColor(hsv[0], hsv[1], hsv[2]);
     });
   });
