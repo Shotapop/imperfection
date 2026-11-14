@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
-<link rel="icon" type="image/png" href="favicon.png">
+<link rel="icon" type="image/png" href="favicon.png" id="favicon">
   
 <title>imperfection.</title>
 <style>
@@ -1765,22 +1765,22 @@
     s.px=s.x; s.py=s.y;
   }
 
-  function shapePath(kind,r){
-    ctx.beginPath();
-    if(kind==='circle'){ ctx.arc(0,0,r,0,Math.PI*2); return; }
+  function shapePath(kind,r,c=ctx){
+    c.beginPath();
+    if(kind==='circle'){ c.arc(0,0,r,0,Math.PI*2); return; }
     if(kind==='plus'){
       const a=r*0.42;
-      ctx.moveTo(-a,-r);ctx.lineTo(a,-r);ctx.lineTo(a,-a);ctx.lineTo(r,-a);ctx.lineTo(r,a);ctx.lineTo(a,a);
-      ctx.lineTo(a,r);ctx.lineTo(-a,r);ctx.lineTo(-a,a);ctx.lineTo(-r,a);ctx.lineTo(-r,-a);ctx.lineTo(-a,-a);ctx.closePath();return;
+      c.moveTo(-a,-r);c.lineTo(a,-r);c.lineTo(a,-a);c.lineTo(r,-a);c.lineTo(r,a);c.lineTo(a,a);
+      c.lineTo(a,r);c.lineTo(-a,r);c.lineTo(-a,a);c.lineTo(-r,a);c.lineTo(-r,-a);c.lineTo(-a,-a);c.closePath();return;
     }
     if(kind==='star'){
       const spikes=5, inner=r*0.45;
       for(let i=0;i<spikes*2;i++){
         const rad=i%2?inner:r, ang=i*Math.PI/spikes - Math.PI/2;
         const x=Math.cos(ang)*rad, y=Math.sin(ang)*rad;
-        i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+        i?c.lineTo(x,y):c.moveTo(x,y);
       }
-      ctx.closePath();return;
+      c.closePath();return;
     }
     if(kind==='flower'||kind==='blossom'){
 
@@ -1790,72 +1790,72 @@
       for(let i=0;i<petals;i++){
         const ang=i*Math.PI*2/petals - Math.PI/2;
         const cx=Math.cos(ang)*pr, cy=Math.sin(ang)*pr;
-        ctx.moveTo(cx+Math.cos(ang)*pr,cy+Math.sin(ang)*pr);
-        ctx.ellipse(cx,cy,pr,pw,ang,0,Math.PI*2);
+        c.moveTo(cx+Math.cos(ang)*pr,cy+Math.sin(ang)*pr);
+        c.ellipse(cx,cy,pr,pw,ang,0,Math.PI*2);
       }
       return;
     }
     if(kind==='petal'){
-      ctx.moveTo(0,-r);
-      ctx.quadraticCurveTo(r*0.75,-r*0.25,0,r);
-      ctx.quadraticCurveTo(-r*0.75,-r*0.25,0,-r);
-      ctx.closePath();return;
+      c.moveTo(0,-r);
+      c.quadraticCurveTo(r*0.75,-r*0.25,0,r);
+      c.quadraticCurveTo(-r*0.75,-r*0.25,0,-r);
+      c.closePath();return;
     }
     if(kind==='leaf'){
-      ctx.moveTo(0,-r);
-      ctx.bezierCurveTo(r*0.85,-r*0.45,r*0.85,r*0.5,0,r);
-      ctx.bezierCurveTo(-r*0.85,r*0.5,-r*0.85,-r*0.45,0,-r);
-      ctx.closePath();return; 
+      c.moveTo(0,-r);
+      c.bezierCurveTo(r*0.85,-r*0.45,r*0.85,r*0.5,0,r);
+      c.bezierCurveTo(-r*0.85,r*0.5,-r*0.85,-r*0.45,0,-r);
+      c.closePath();return; 
     }
     if(kind==='bud'){
-      ctx.moveTo(0,-r);
-      ctx.quadraticCurveTo(r*0.55,-r*0.15,r*0.32,r*0.55);
-      ctx.quadraticCurveTo(0,r*0.95,-r*0.32,r*0.55);
-      ctx.quadraticCurveTo(-r*0.55,-r*0.15,0,-r);
-      ctx.closePath();return;
+      c.moveTo(0,-r);
+      c.quadraticCurveTo(r*0.55,-r*0.15,r*0.32,r*0.55);
+      c.quadraticCurveTo(0,r*0.95,-r*0.32,r*0.55);
+      c.quadraticCurveTo(-r*0.55,-r*0.15,0,-r);
+      c.closePath();return;
     }
     if(kind==='clover'){
       const lr=r*0.42;
       for(let i=0;i<4;i++){
         const ang=i*Math.PI/2 + Math.PI/4;
         const cx=Math.cos(ang)*lr, cy=Math.sin(ang)*lr;
-        ctx.moveTo(cx+lr,cy);
-        ctx.arc(cx,cy,lr,0,Math.PI*2);
+        c.moveTo(cx+lr,cy);
+        c.arc(cx,cy,lr,0,Math.PI*2);
       }
       return;
     }
     if(kind==='cloud'){
-      ctx.moveTo(-r*0.78,r*0.38);
-      ctx.bezierCurveTo(-r*1.05,r*0.32,-r*1.1,-r*0.18,-r*0.72,-r*0.28);
-      ctx.bezierCurveTo(-r*0.66,-r*0.72,-r*0.02,-r*0.86,r*0.22,-r*0.5);
-      ctx.bezierCurveTo(r*0.6,-r*0.68,r*1.02,-r*0.32,r*0.86,r*0.02);
-      ctx.bezierCurveTo(r*1.16,r*0.08,r*1.14,r*0.5,r*0.8,r*0.5);
-      ctx.lineTo(-r*0.62,r*0.5);
-      ctx.bezierCurveTo(-r*0.92,r*0.5,-r*1.0,r*0.44,-r*0.78,r*0.38);
-      ctx.closePath();return;
+      c.moveTo(-r*0.78,r*0.38);
+      c.bezierCurveTo(-r*1.05,r*0.32,-r*1.1,-r*0.18,-r*0.72,-r*0.28);
+      c.bezierCurveTo(-r*0.66,-r*0.72,-r*0.02,-r*0.86,r*0.22,-r*0.5);
+      c.bezierCurveTo(r*0.6,-r*0.68,r*1.02,-r*0.32,r*0.86,r*0.02);
+      c.bezierCurveTo(r*1.16,r*0.08,r*1.14,r*0.5,r*0.8,r*0.5);
+      c.lineTo(-r*0.62,r*0.5);
+      c.bezierCurveTo(-r*0.92,r*0.5,-r*1.0,r*0.44,-r*0.78,r*0.38);
+      c.closePath();return;
     }
     if(kind==='starTwinkle'){
       const spikes=4, inner=r*0.32;
       for(let i=0;i<spikes*2;i++){
         const rad=i%2?inner:r, ang=i*Math.PI/spikes - Math.PI/2;
         const x=Math.cos(ang)*rad, y=Math.sin(ang)*rad;
-        i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+        i?c.lineTo(x,y):c.moveTo(x,y);
       }
-      ctx.closePath();return;
+      c.closePath();return;
     }
     if(kind==='moon'){
-      ctx.arc(0,0,r,Math.PI*0.35,Math.PI*1.65);
-      ctx.arc(r*0.4,0,r*0.82,Math.PI*1.65,Math.PI*0.35,true);
-      ctx.closePath();return;
+      c.arc(0,0,r,Math.PI*0.35,Math.PI*1.65);
+      c.arc(r*0.4,0,r*0.82,Math.PI*1.65,Math.PI*0.35,true);
+      c.closePath();return;
     }
     if(kind==='lightning'){
-      ctx.moveTo(r*0.15,-r);
-      ctx.lineTo(-r*0.35,-r*0.05);
-      ctx.lineTo(0,-r*0.05);
-      ctx.lineTo(-r*0.2,r);
-      ctx.lineTo(r*0.35,r*0.05);
-      ctx.lineTo(0,r*0.05);
-      ctx.closePath();return;
+      c.moveTo(r*0.15,-r);
+      c.lineTo(-r*0.35,-r*0.05);
+      c.lineTo(0,-r*0.05);
+      c.lineTo(-r*0.2,r);
+      c.lineTo(r*0.35,r*0.05);
+      c.lineTo(0,r*0.05);
+      c.closePath();return;
     }
     let sides=3;
     if(kind==='square'||kind==='diamond')sides=4;
@@ -1865,38 +1865,38 @@
     for(let i=0;i<sides;i++){
       const ang=rot0 + i*Math.PI*2/sides;
       const x=Math.cos(ang)*r, y=Math.sin(ang)*r;
-      i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+      i?c.lineTo(x,y):c.moveTo(x,y);
     }
-    ctx.closePath();
+    c.closePath();
   }
 
   const SILHOUETTE_KINDS={flower:1,blossom:1,clover:1};
   const FLORAL_KINDS={flower:1,blossom:1,clover:1,petal:1,leaf:1,bud:1};
-  function paintShape(kind,r,col,lw,glowCol,glowBlur){
+  function paintShape(kind,r,col,lw,glowCol,glowBlur,c=ctx){
     const fill=rgb(col), ink=THEME.outline;
     if(FLORAL_KINDS[kind]) lw*=0.8;
-    shapePath(kind,r);
+    shapePath(kind,r,c);
     if(SILHOUETTE_KINDS[kind]){
-      ctx.shadowColor=glowCol; ctx.shadowBlur=glowBlur;
-      ctx.lineWidth=lw*1.5; ctx.strokeStyle=ink; ctx.stroke();
-      ctx.shadowBlur=0;
-      ctx.fillStyle=fill; ctx.fill();
-      ctx.save(); ctx.globalAlpha*=0.4; ctx.lineWidth=lw*0.4; ctx.stroke(); ctx.restore();
+      c.shadowColor=glowCol; c.shadowBlur=glowBlur;
+      c.lineWidth=lw*1.5; c.strokeStyle=ink; c.stroke();
+      c.shadowBlur=0;
+      c.fillStyle=fill; c.fill();
+      c.save(); c.globalAlpha*=0.4; c.lineWidth=lw*0.4; c.stroke(); c.restore();
       if(kind!=='clover'){
         const cr=r*(kind==='flower'?0.2:0.24);
-        ctx.beginPath(); ctx.arc(0,0,cr,0,Math.PI*2);
-        ctx.fillStyle=rgb([col[0]+(255-col[0])*0.6,col[1]+(255-col[1])*0.6,col[2]+(255-col[2])*0.6]);
-        ctx.fill(); ctx.lineWidth=lw*0.55; ctx.strokeStyle=ink; ctx.stroke();
+        c.beginPath(); c.arc(0,0,cr,0,Math.PI*2);
+        c.fillStyle=rgb([col[0]+(255-col[0])*0.6,col[1]+(255-col[1])*0.6,col[2]+(255-col[2])*0.6]);
+        c.fill(); c.lineWidth=lw*0.55; c.strokeStyle=ink; c.stroke();
       }
       return;
     }
-    ctx.shadowColor=glowCol; ctx.shadowBlur=glowBlur;
-    ctx.fillStyle=fill; ctx.fill();
-    ctx.shadowBlur=0;
-    ctx.lineWidth=lw; ctx.strokeStyle=ink; ctx.stroke();
+    c.shadowColor=glowCol; c.shadowBlur=glowBlur;
+    c.fillStyle=fill; c.fill();
+    c.shadowBlur=0;
+    c.lineWidth=lw; c.strokeStyle=ink; c.stroke();
     if(kind==='leaf'){
-      ctx.save(); ctx.globalAlpha*=0.55; ctx.lineWidth=lw*0.45;
-      ctx.beginPath(); ctx.moveTo(0,-r*0.68); ctx.lineTo(0,r*0.68); ctx.stroke(); ctx.restore();
+      c.save(); c.globalAlpha*=0.55; c.lineWidth=lw*0.45;
+      c.beginPath(); c.moveTo(0,-r*0.68); c.lineTo(0,r*0.68); c.stroke(); c.restore();
     }
   }
 
@@ -1979,6 +1979,28 @@
   const BEST_KEY='imperfection_best_score';
   function saveCfg(){
     try{ localStorage.setItem(SAVE_KEY,JSON.stringify({theme:THEME,shapeStyle})); }catch(e){}
+    updateFavicon();
+  }
+
+  // ===== Favicon follows the shape style (and current colors) =====
+  const FAV_SHAPE={geometric:{kind:'star',r:27,col:3,y:34},floral:{kind:'flower',r:28,col:0,y:32},sky:{kind:'cloud',r:25,col:5,y:34}};
+  const favCanvas=document.createElement('canvas'); favCanvas.width=favCanvas.height=64;
+  const favCtx=favCanvas.getContext('2d');
+  let favKey='';
+  function updateFavicon(){
+    const link=document.getElementById('favicon'); if(!link||!favCtx) return;
+    const f=FAV_SHAPE[shapeStyle]||FAV_SHAPE.geometric;
+    const key=shapeStyle+THEME.bg+THEME.outline+THEME.palette[f.col];
+    if(key===favKey) return; favKey=key;
+    const c=favCtx;
+    c.setTransform(1,0,0,1,0,0); c.clearRect(0,0,64,64);
+    c.lineJoin='round'; c.lineCap='round';
+    c.beginPath();
+    if(c.roundRect) c.roundRect(0,0,64,64,14); else c.rect(0,0,64,64);
+    c.fillStyle=THEME.bg; c.fill();
+    c.translate(32,f.y);
+    paintShape(f.kind,f.r,hexToRgbArr(THEME.palette[f.col]),5,'rgba(0,0,0,0)',0,c);
+    try{ link.href=favCanvas.toDataURL('image/png'); }catch(e){}
   }
   function loadCfg(){
     try{
@@ -2828,7 +2850,7 @@
 
   outlineSwatch.addEventListener('click', () => {
     openColorPicker(THEME.outline, (newHex) => {
-      THEME.outline = ensureNotBlack(newHex, '#2b2a55'); updatePanelTheme();
+      THEME.outline = ensureNotBlack(newHex, '#2b2a55'); updatePanelTheme(); updateFavicon();
       outlineSwatch.style.backgroundColor = THEME.outline;
     });
   });
@@ -3165,6 +3187,7 @@
   applyLang();
 
   if(loadCfg()){ syncInputs(); applyBackground(); } else applyPreset('colorful');
+  updateFavicon();
   build(); frame();
 })();
 </script>
